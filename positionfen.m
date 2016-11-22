@@ -9,6 +9,10 @@
 % 4- Hauteur de la fenêtre
 % 5- Handle de la référence
 %
+% retourne une position en fonction du handle d'une figure ou de la figure pointée par gcf.
+% si je veux avoir une fenêtre de 300X400 centrée en hauteur à gauche de la figure par défaut
+%    pos = positioncur('G', 'C', 300, 400, [])
+%
 function varargout =positionfen(varargin)
 	hndl =gcf;
   if nargin == 5
@@ -35,8 +39,7 @@ function varargout =positionfen(varargin)
   	horiz =lower(varargin{1});
   end
   final =[0 0 large haute];
-%  monpos =get(0,'MonitorPositions');
-%  elmonit =length(monpos(:))/length(monpos);
+
   switch horiz
   %------------
   case {'left+','gauche+','g+','l+'}

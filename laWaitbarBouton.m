@@ -1,5 +1,9 @@
 %
-% Fonction laWaitbar
+% Création d'une WAITBAR augmenté d'un bouton, avec la possibilité
+% de la positionner relativement à une figure. Si aucune figure n'existe
+% alors se sera relativement à la position du curseur. De plus, sa propriété
+% 'WindowStyle' sera 'modal'.
+%
 % Créateur: MEK, septembre 2011
 %
 % VARARGIN
@@ -11,45 +15,31 @@
 % 6- tag du bouton
 %
 function varargout =laWaitbarBouton(varargin)
-  Val =0;
-  texto ='Test de waitbar';
-  pHor ='C';
-  pVer ='C';
-  hdl =gcf;
-  letag ='TagLaWaitbarBouton';
+  % On va créer un objet "laWaitbar"
   if nargin == 6
+    Wb =laWaitbar(varargin{1:5});
     letag =varargin{6};
-  elseif nargin >= 5
-  	hdl =varargin{5};
+  else
+    Wb =laWaitbar(varargin{:});
+    letag ='TagLaWaitbarBouton';
   end
-  if nargin >= 4
-  	pVer =lower(varargin{4});
-  end
-  if nargin >= 3
-  	pHor =lower(varargin{3});
-  end
-  if nargin >= 2
-  	texto =varargin{2};
-  end
-  if nargin >= 1
-  	Val =varargin{1};
-  end
-  Wb =waitbar(Val, texto, 'visible','off');
-  set(Wb, 'Units','pixels');
+  %_____________________________________________
+  % On va l'augmenter d'un bouton et le rendre modal
   lapos =get(Wb, 'position');
   step =50;
-  lapos(:) =round(positionfen(pHor, pVer, lapos(3), lapos(4)+step, hdl));
+  lapos(4) =lapos(4)+step;
   set(Wb, 'position',lapos);
   foo =get(Wb, 'Children');
   set(foo, 'Units','pixels');
   posfoo =get(foo, 'Position');
-  posfoo(2) =lapos(4)-posfoo(4)-45;
+  posfoo(2) =lapos(4)-posfoo(4)-step+5;
   set(foo, 'Position', posfoo);
-  large =50; haut =22; posy =20; posx =round((lapos(3)-large)/2);
+  large =80; haut =22; posy =20; posx =round((lapos(3)-large)/2);
   uicontrol('Parent',Wb, 'Tag',letag, 'String','Arrêt', 'Position',[posx posy large haut]);
-  set(Wb, 'visible','on', 'WindowStyle','modal');
+  set(Wb, 'WindowStyle','modal');
   figure(Wb);
   if nargout
     varargout{1} =Wb;
   end
+
 end
