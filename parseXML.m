@@ -1,8 +1,10 @@
+%
+% PARSEXML Convert XML file to a MATLAB structure.
+%
 function theStruct = parseXML(filename)
-  % PARSEXML Convert XML file to a MATLAB structure.
   try
     tree = xmlread(filename);
-  catch
+  catch foo
     theStruct =[];
     error('Failed to read XML file %s.',filename);
   end
@@ -10,7 +12,7 @@ function theStruct = parseXML(filename)
   % with very deeply nested trees.
   try
     theStruct =parseChildNodes(tree);
-  catch
+  catch foo
     theStruct =[];
     error('Unable to parse XML file %s.',filename);
   end

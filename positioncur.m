@@ -8,9 +8,15 @@
 % 3- largeur de la fenêtre
 % 4- Hauteur de la fenêtre
 %
+% retourne une position en fonction du moniteur ou le curseur se trouve.
+% si je veux avoir une fenêtre de 300X400 centrée en hauteur à gauche
+%    pos = positioncur('G', 'C', 300, 400)
+%
 function varargout =positioncur(varargin)
-	fenpos =get(0,'pointerlocation');
-	pp =monitcur();
+  % position du curseur
+  fenpos =get(0,'pointerlocation');
+  % position du moniteur courant
+  pp =monitcur();
   if nargin >= 4
   	horiz =lower(varargin{1});
   	verti =lower(varargin{2});
@@ -28,8 +34,7 @@ function varargout =positioncur(varargin)
   	haute =pp(4)/3;
   end
   final =[0 0 large haute];
-%  monpos =get(0,'MonitorPositions');
-%  elmonit =length(monpos(:))/length(monpos);
+
   switch horiz
   %------------
   case {'left','gauche','g','l'}

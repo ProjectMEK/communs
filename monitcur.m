@@ -1,6 +1,8 @@
 %
 % Pos =MONITCUR()
 %
+% Fonction pour donner la position du moniteur courant
+%
 % Au retour on aura la position du moniteur où se
 % trouve le curseur: [posx posy largeur hauteur]
 %

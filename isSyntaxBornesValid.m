@@ -1,11 +1,15 @@
 %
 % isSyntaxBornesValid(t)
 %
-%     param: t    string représentant des points ou valeurs temporelles
+%  Fonction pour valider les chaînes de caractères utiliser pour
+%  définir des points ou des temps en secondes. Ça peut même
+%  être une expression du genre 'P3+2'
+%
+%     param: t    'String' représentant des points ou valeurs temporelles
 %
 %     on va avoir besoin de la fonction isSyntaxBorneValid(t)
 %
-function resultat =isSyntaxBornesValid(t)
+function resultat = isSyntaxBornesValid(t)
   resultat =false;
   pat ='\s+';
   iss =regexp(t, pat, 'split');

@@ -2,9 +2,9 @@
 % Affichage de la fenêtre "À propos"
 % 
 % en entrée on veut:
-%     une cellule avec les phrases à afficher.
-%     le nombre d'interligne à passer pour l'affichage.
-%     la FontSize, zéro --> valeur par défaut
+%   -  une cellule avec les phrases à afficher.
+%   -  le nombre d'interligne à passer pour l'affichage.
+%   -  la FontSize ( si zéro --> valeur par défaut )
 %
 % 26 février 2015, MEK
 %
