@@ -1,6 +1,7 @@
 Ci-bas je donne quelques exemples pour manipuler les objets créer avec les classes.
 
   % CRÉATION D'UN OBJET CAnalye (QUI EST LA CLASSE PRINCIPALE DU LOGICIEL ANALYSE)
+  % C'est un objet 'SINGLETON' créer avec le paramètre 'sealed'
   OA =CAnalyse.getInstance();
 
   % RÉCUPÉRATION DU HANDLE DU FICHIER COURANT
