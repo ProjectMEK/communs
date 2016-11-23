@@ -3,19 +3,28 @@
 %
 %  Gestion d'une liste
 %
-% À REVOIR SÉRIEUSEMENT AVANT D'UTILISER
+% À RETESTER AVANT D'UTILISER
 %
 classdef CUneListe < handle
+
   properties
     premier =[];      % handle du premier noeud créer
     cur =[];          % handle du noeud actif (pour la lecture dans AV)
   end
+
   methods
-    function thisObj =CUneListe()  % CONSTRUCTOR
+
+    %------------
+    % CONSTRUCTOR
+    %----------------------------
+    function thisObj =CUneListe()
       % rien pour l'instant
     end
-    %-------
-    function delete(thisObj)       % DESTRUCTOR
+
+    %-----------
+    % DESTRUCTOR
+    %-----------------------
+    function delete(thisObj)
       if ~isempty(thisObj.premier)
         thisObj.cur =thisObj.premier;
         S =thisObj.cur.next;
@@ -29,8 +38,12 @@ classdef CUneListe < handle
         delete(thisObj.premier);
       end
     end
+
     %---------------------------
-    %% À revoir avant d'utiliser
+    % À revoir avant d'utiliser
+    % je l'ai ré-implémenté dans Cinegraf
+    % et ça fonctionne bien.
+    %-------------------------------
     function Nouveau(thisObj, hData)
       hnd =CUnNoeud();
       if isempty(thisObj.premier)
@@ -43,15 +56,17 @@ classdef CUneListe < handle
       thisObj.cur.next =hnd;
       hnd.hbuf =hData;
     end
-    %-------
+
+    %--------------------------
     function MiseAZero(thisObj)
       S =thisObj.premier;
       S.status =2;
-      while ~isempty(S.next) & ~(S.next.status == 2)
+      while ~isempty(S.next) && ~(S.next.status == 2)
         S =S.next;
         S.status =0;
       end
       thisObj.premier.status =0;
     end
+
   end %methods
 end

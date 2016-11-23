@@ -1,23 +1,36 @@
 %
 % Classe CTpchnl
 %
+% Classe de gestion des échelles de temps
+%
+% Permet d'afficher les datas en fonction du temps ou on
+% décide de la référence temporelle (premier échantillon:
+% zéro ou autre...)
 %
 classdef CTpchnl < handle
+
   properties
     Dato ={};
-  end %properties
-  %---------
+  end
+
   properties (SetAccess = protected)
     hFich;
     nbech =0;
   end %properties (SetAccess = protected)
-  %------
+
   methods
-    function thisObj =CTpchnl(hF)     %  CONSTRUCTOR
+
+    %------------
+    % CONSTRUCTOR
+    %----------------------------
+    function thisObj =CTpchnl(hF)
       thisObj.hFich =hF;
     end
-    %-------
-    function delete(thisObj)          %  DESTRUCTOR
+
+    %-----------
+    % DESTRUCTOR
+    %-----------------------
+    function delete(thisObj)
       if thisObj.nbech
         for U =thisObj.nbech:-1:1
           delete(thisObj.Dato{U});
@@ -25,7 +38,10 @@ classdef CTpchnl < handle
         thisObj.nbech =0;
       end
     end
+
     %-------
+    % GETTER
+    %----------------------------
     function ss =getDato(thisObj)
       ss =[];
       for U =1:thisObj.nbech
@@ -35,9 +51,11 @@ classdef CTpchnl < handle
         ss(U).point =hEch.point;
       end
     end
-    %-------
+
+    %-------------------------------------
+    % tp est une structure lu d'un fichier
+    %-------------------------------------
     function tp =isValidStruc(thisObj, tp)
-      % tp est une structure lu d'un fichier
       if ~isempty(tp) & sum(isfield(tp(1), {'nom', 'canal', 'point'})) == 3
       	test =[];
       	for U =1:length(tp)
@@ -54,7 +72,8 @@ classdef CTpchnl < handle
       	tp =[];
       end
     end
-    %-------
+
+    %-------------------------------------
     function s =QuiSuisje(thisObj, hchild)
       s =0;
       for U =1:thisObj.nbech
@@ -64,7 +83,8 @@ classdef CTpchnl < handle
         end
       end
     end
-    %-------
+
+    %----------------------------------
     function s =FaireListEchel(thisObj)
       s{1} ='Aucune';
       for U =1:thisObj.nbech
@@ -72,7 +92,8 @@ classdef CTpchnl < handle
         s{U} =hEch.nom;
       end
     end
-    %-------
+
+    %--------------------------------------------
     function [laliste, B] =getpoint(thisObj, can)
       hdchnl =thisObj.hFich.Hdchnl;
       laliste={'...'};
@@ -83,17 +104,20 @@ classdef CTpchnl < handle
         end
       end
     end
-    %-------
+
+    %-------------------------------
     function EnleveEchel(obj, echel)
       delete(obj.Dato{echel});
       obj.Dato(echel) =[];
       obj.nbech =length(obj.Dato);
     end
-    %-------
+
+    %------------------------------
     function DelPoint(tO, varargin)
       % utile pour "équilibrer la librairie"
     end  
-    %-------
+
+    %--------------------------
     function ValidEchelles(obj)
       nad =obj.hFich.Vg.nad;
       for U =obj.nbech:-1:1
@@ -104,5 +128,6 @@ classdef CTpchnl < handle
         end
       end
     end
+
   end  %methods
 end  %classdef

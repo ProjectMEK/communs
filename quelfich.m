@@ -19,7 +19,7 @@ function varargout =quelfich(varargin)
   cual =0;
   if multi
   	[fname,pname,cual] =uigetfile(lenom,letit,'MultiSelect','on');
-    if cual & isdir(pname)
+    if cual && isdir(pname)
       cd(pname);
       if iscell(fname)
         fname =sort(fname);
@@ -29,7 +29,7 @@ function varargout =quelfich(varargin)
     end
   else
   	[fname,pname] =uigetfile(lenom,letit);
-    if pname & isdir(pname)
+    if pname && isdir(pname)
       cd(pname);
       cual =1;
     end

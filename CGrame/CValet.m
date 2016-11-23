@@ -2,11 +2,15 @@
 % Classe qui donne les services à la "Communauté"
 %
 classdef CValet
+
   % Définition des Méthodes Statics
   methods (Static)
+
+    %-------------------
     function valdefaut()
       %**************************************
       % DÉFINITION DU CURSEUR EN FLEUR DE LYS
+      %--------------------------------------
       fleur=ones(16,16);
       fleur([1:9 12:16],[1 16])=nan;
       fleur([1:8 11:16],[2 15])=nan;
@@ -15,8 +19,9 @@ classdef CValet
       fleur([1:7 13:16],[5 12])=nan;
       fleur([1:4 6:8 13 14 16],[6 11])=nan;
       fleur([1 2 8:11 13 15 16],[7 10])=nan;
-      %*********************************************
-      % DÉFINITION DES VARIABLES GLOBALES PAR DÉFAUT
+      %***********************************************
+      % DÉFINITION DES VARIABLES "GLOBALES" PAR DÉFAUT
+      %-----------------------------------------------
       set(0,'DefaultFigurePointer','cross',...
             'DefaultFigurePointerShapeCData',fleur,...
             'DefaultFigurePointerShapeHotSpot',[1 8],...
@@ -35,43 +40,25 @@ classdef CValet
             'defaultAxesunits','Normalized',...
             'defaultAxesButtonDownFcn',[]);
     end
+
     %------------------
     % GARBAGE COLLECTOR
     % fonction pour nettoyer les Objets qui ont
     % fini leur travail et sont désormais inutiles
-    %-------
+    %---------------------------------------------
     function GarbageCollector(src, event, thatObj)
       set(src, 'WindowButtonMotionFcn','');
       pause(0.25);
       delete(thatObj);
     end
-    %-------
-    function [fname,pname,cual] =quelfich(lenom,letit,multi)
-      % Créateur: MEK, février 2009
-      %
-      % lenom ={'*.ext','extension à ouvrir'}
-      % letit =Titre de la fenêtre
-      % multi =true Si multiselect, autrement false
-      cual =0;
-      if multi
-      	[fname,pname,cual] = uigetfile(lenom,letit,'MultiSelect','on');
-        if iscell(fname) || (ischar(fname) && ischar(pname))
-          cd(pname);
-          if iscell(fname)
-            fname = sort(fname);
-          else
-            fname = {fname};
-          end
-        end
-      else
-      	[fname,pname] = uigetfile(lenom,letit);
-        if ischar(fname) && ischar(pname)
-          cd(pname);
-          cual =1;
-        end
-      end
-    end
-    %-------
+
+    %----------------------------------------------
+    % Permet de replacer une fenêtre qui est sortie
+    % du moniteur. Ça peut être suite à un ajout/changement
+    % de moniteur...
+    % Pi  --> position initiale
+    % Pf  --> position finale
+    %--------------------------
     function Pf =Reposition(Pi)
       % On s'assure que les coordonnées de position seront
       % visible dans le ou les moniteurs accessibles.
@@ -91,7 +78,10 @@ classdef CValet
       end
       Pf(2) =min(Pi(2),max(S(:,4))-Pi(4)-20);
     end
-    %-------
+
+    %---------------------------------------
+    % création d'une fenêtre avec 3 boutons
+    %--------------------------------------------------------
     function Val =fen3bton(letitre,question,bout1,bout2,hndl)
       % varargin{1}  le titre de la fenêtre
       % varargin{2}  le texte à afficher {cellule}
@@ -140,7 +130,10 @@ classdef CValet
       	Val =false;
       end
     end
-    %-------
+
+    %---------------------------------------
+    % création d'une fenêtre avec 2 boutons
+    %--------------------------------------------------------------
     function Val =fen2bton(letitre,question,bout1,bout2,hndl,actif)
       % varargin{1}  le titre de la fenêtre
       % varargin{2}  le texte à afficher {cellule}
@@ -189,8 +182,9 @@ classdef CValet
       	Val =false;
       end
     end
-    %
-    % Pour les prochaînse fonctions, voilà la Struc A-->CDatoImport()
+
+    %------------------------------------------------------------------
+    % Pour les prochaînes fonctions, voilà la Struc A --> CDatoImport()
     % A.debcan  donne la concordance du premier canal importé
     % A.fincan  donne ...           ... dernier ...
     % A.modcan  Nb de canaux ajouté, sinon < 0
@@ -201,7 +195,7 @@ classdef CValet
     % A.f1nad   donne ...                       ... importé ...
     % A.f0ess   donne le nombre d'essai du fichier actif avant modif
     % A.f1ess   donne ...                      ... importé ...
-    %-------
+    %---------------------------------
     function ImportDtchnl(hF0, hF1, A)
       % Sert à importer les datas (CDtchnl) du fichier hF1 dans hF0
       lemess ='Transfert des données (Dtchnl), canal ';
@@ -248,9 +242,10 @@ classdef CValet
       end
       delete(hwb);
     end
-    %-------
+
+    %---------------------------------
     function ImportHdchnl(hF0, hF1, A)
-      % Sert à importer les headers (CHtchnl) du fichier hF1 dans hF0
+      % Sert à importer les headers (CHdchnl) du fichier hF1 dans hF0
       hwb = waitbar(0,'Transfert des entêtes (Hdchnl), veuillez patienter');
       vg =hF0.Vg;
       hdchnl =hF0.Hdchnl;
@@ -347,7 +342,8 @@ classdef CValet
       vg.ess =length(hdchnl.numstim);
       delete(hwb);
     end
-    %-------
+
+    %-------------------------------
     function ImportStim(hF0, hF1, A)
       % Sert à importer les stimulus du fichier hF1 dans hF0
       hwb = waitbar(0,'Transfert des Stimulus, veuillez patienter');
@@ -444,7 +440,8 @@ classdef CValet
       hF0.StimEssVideBidon();
       delete(hwb);
     end
-    %-------
+
+    %---------------------------------
     function ImportCatego(hF0, hF1, A)
       %
       % On effectue ici la récupération des catégories du fichiers à ajouter (hF1)
@@ -575,7 +572,8 @@ classdef CValet
       end  %if vg.niveau & fvg.niveau
       delete(hwb);
     end
-    %-------
+
+    %---------------------------------
     function ImportPtchnl(hF0, hF1, A)
       % On conserve les points marqués
       hwb = waitbar(0,'Transfert des points marqués (Catego), veuillez patienter');
@@ -596,7 +594,10 @@ classdef CValet
       end
       delete(hwb);
     end
-    %-------
+
+    %----------------------------------
+    % Importation des échelles de temps
+    %---------------------------------
     function ImportTpchnl(hF0, hF1, A)
       tp1 =hF1.Tpchnl;
       for U =1:tp1.nbech
@@ -604,5 +605,6 @@ classdef CValet
       end
       hF0.Tpchnl.AssimilerNouveau(tp1);
     end
+
   end  %methods (Static)
 end %classdef
