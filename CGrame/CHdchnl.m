@@ -1,9 +1,9 @@
 %
 % Classe CHdchnl
-% EntÃªte des fichiers Analyse
+% Entête des fichiers Analyse
 % contiendra les infos sur les canaux/essais
 %
-% Ici on hÃ©rite des fonction de la classe CGestionBase
+% Ici on hérite des fonction de la classe CGestionBase
 %
 
 classdef CHdchnl < CGestionBase
@@ -11,7 +11,7 @@ classdef CHdchnl < CGestionBase
   properties
     %                    nad   est le nombre total de canaux
     %                    ess   est le nombre total d'essai
-    Listadname =[];   % {nad}  ne sera pas sauvegardÃ©
+    Listadname =[];   % {nad}  ne sera pas sauvegardé
     adname =[];       % {nad}
     cindx =[];        % {nad}
     sweeptime =[];    % (nad, ess)
@@ -36,8 +36,8 @@ classdef CHdchnl < CGestionBase
     end
 
     %-----------------------------------------
-    % On initialise les valeurs des propriÃ©tÃ©s
-    % Ã  partir d'une structure (Hd)
+    % On initialise les valeurs des propriétés
+    % à partir d'une structure (Hd)
     %------------------------
     function initial(obj, Hd)
       initial@CGestionBase(obj, Hd);
@@ -45,8 +45,8 @@ classdef CHdchnl < CGestionBase
     end
 
     %------------------------------------
-    % On rebÃ¢ti la propriÃ©tÃ© "Listadname"
-    % afin de faire une liste des noms de canaux avec un numÃ©ro
+    % On rebâti la propriété "Listadname"
+    % afin de faire une liste des noms de canaux avec un numéro
     %----------------------------
     function ResetListAdname(obj)
       obj.Listadname =obj.adname;
@@ -64,7 +64,7 @@ classdef CHdchnl < CGestionBase
     %-------------------------
     function Hd =databrut(obj)
       Hd =databrut@CGestionBase(obj);
-      Hd =rmfield(Hd, 'Listadname', 'monnom');
+      Hd =rmfield(Hd, {'Listadname', 'monnom'});
     end
 
     %
@@ -74,17 +74,17 @@ classdef CHdchnl < CGestionBase
 
     %___________________________________________________________________________
     %
-    % FONCTION POUR VÃ‰RIFIER LA DIMENSION DES DIFFÃ‰RENTES PROPRIÃ‰TÃ‰S DE LA CLASSE.
-    % ON COMMENCE PAR COUPER L'EXCÃ‰DENT EN CANAUX ET ESSAIS, PUIS ON VOIT Ã€
+    % FONCTION POUR VÉRIFIER LA DIMENSION DES DIFFÉRENTES PROPRIÉTÉS DE LA CLASSE.
+    % ON COMMENCE PAR COUPER L'EXCÉDENT EN CANAUX ET ESSAIS, PUIS ON VOIT À
     % COMBLER SI IL MANQUE DES INFOS SUR LES CANAUX OU ESSAIS.
     %
-    % EN ENTRÃ‰E: (NOMBRE_DE_CANAUX, NOMBRE_ESSAIS)
+    % EN ENTRÉE: (NOMBRE_DE_CANAUX, NOMBRE_ESSAIS)
     %---------------------------------------------------------------------------
     function VerifSize(tO, CAN, ESS)
       if CAN < 1 | ESS < 1
         return;
       end
-      %ON COMMENCE PAR ENLEVER L'EXCÃ‰DENT
+      %ON COMMENCE PAR ENLEVER L'EXCÉDENT
       tO.couperExcedentCanEss(CAN, ESS);
 
       %PUIS ON COMBLE SI ON EST EN MANQUE
@@ -93,8 +93,8 @@ classdef CHdchnl < CGestionBase
 
     %___________________________________________________________________________
     %
-    % FONCTION POUR COUPER L'EXCÃ‰DENT EN CANAUX ET ESSAIS.
-    % EN ENTRÃ‰E: (NOMBRE_DE_CANAUX, NOMBRE_ESSAIS)
+    % FONCTION POUR COUPER L'EXCÉDENT EN CANAUX ET ESSAIS.
+    % EN ENTRÉE: (NOMBRE_DE_CANAUX, NOMBRE_ESSAIS)
     %---------------------------------------------------------------------------
     function couperExcedentCanEss(tO, Nad, Ess)
       tO.adname(Nad+1:end) =[];
@@ -123,9 +123,9 @@ classdef CHdchnl < CGestionBase
     %___________________________________________________________________________
     %
     % FONCTION POUR COMBLER SI IL MANQUE DES INFOS SUR LES CANAUX OU ESSAIS.
-    % ON NE TOUCHERA PAS AUX NOMS DE CANAUX CAR Ã‡A IMPLIQUE TROP DE CHANGEMENTS.
+    % ON NE TOUCHERA PAS AUX NOMS DE CANAUX CAR ÇA IMPLIQUE TROP DE CHANGEMENTS.
     %
-    % EN ENTRÃ‰E: (NOMBRE_DE_CANAUX, NOMBRE_ESSAIS)
+    % EN ENTRÉE: (NOMBRE_DE_CANAUX, NOMBRE_ESSAIS)
     %---------------------------------------------------------------------------
     function comblerCanEss(tO, Nad, Ess)
       if size(tO.sweeptime, 1) < Nad
@@ -186,7 +186,7 @@ classdef CHdchnl < CGestionBase
 
     %------------------------------------------
     % Fonction pour dupliquer les canaux lescan
-    % EN ENTRÃ‰E: ([NUMÃ‰RO DE CANAUX Ã€ DUPLIQUER])
+    % EN ENTRÉE: ([NUMÉRO DE CANAUX À DUPLIQUER])
     %--------------------------
     function duplic(obj,lescan)
       nbcan =length(lescan);
@@ -194,7 +194,7 @@ classdef CHdchnl < CGestionBase
         obj.adname{end+1} =obj.adname{lescan(U)};
         obj.cindx{end+1} =obj.nouvnom();
       end
-      % comme on modifie le nombre de canaux, on rebÃ¢ti la liste
+      % comme on modifie le nombre de canaux, on rebâti la liste
       obj.ResetListAdname();
       obj.sweeptime(end+1:end+nbcan,:) =obj.sweeptime(lescan,:);
       obj.rate(end+1:end+nbcan,:) =obj.rate(lescan,:);
@@ -209,14 +209,14 @@ classdef CHdchnl < CGestionBase
 
     %-----------------------
     % ajouter "nbcan" canaux
-    % EN ENTRÃ‰E: (NOMBRE_DE_CANAUX_A_AJOUTER)
+    % EN ENTRÉE: (NOMBRE_DE_CANAUX_A_AJOUTER)
     %----------------------------
     function ajoutcan(obj, nbcan)
       for U =1:nbcan
         obj.adname{end+1} ='Nouveau canal';
         obj.cindx{end+1} =obj.nouvnom();
       end
-      % comme on modifie le nombre de canaux, on rebÃ¢ti la liste
+      % comme on modifie le nombre de canaux, on rebâti la liste
       obj.ResetListAdname();
       obj.sweeptime(end+1:end+nbcan,:) =1;
       obj.rate(end+1:end+nbcan,:) =1;
@@ -231,21 +231,21 @@ classdef CHdchnl < CGestionBase
 
     %----------------------
     % Suppression de canaux
-    % V contient la matrice des canaux Ã  supprimer
+    % V contient la matrice des canaux à supprimer
     %
     % ex.  tO.SuppCan([1 5 7]);
     %----------------------
     function SuppCan(tO, V)
       nbcan =length(tO.adname);
       if sum(V > nbcan) > 0
-        disp('erreur dans les canaux Ã  enlever');
+        disp('erreur dans les canaux à enlever');
         return;
       end
     	tmp =1:nbcan;
     	tmp(V) =[];
       tO.adname =tO.adname(tmp);
       tO.cindx =tO.cindx(tmp);
-      % comme on modifie le nombre de canaux, on rebÃ¢ti la liste
+      % comme on modifie le nombre de canaux, on rebâti la liste
       tO.ResetListAdname();
       tO.sweeptime(V,:) =[];
       tO.rate(V,:) =[];
@@ -260,7 +260,7 @@ classdef CHdchnl < CGestionBase
 
     %-----------------------------------------
     % Ajoute des essai dans le fichier courant
-    % EN ENTRÃ‰E: (NOMBRE_D'ESSAI_A_AJOUTER)
+    % EN ENTRÉE: (NOMBRE_D'ESSAI_A_AJOUTER)
     %----------------------------
     function ajoutess(obj, nbess)
       if nbess < 1
@@ -280,7 +280,7 @@ classdef CHdchnl < CGestionBase
 
     %----------------------------------------------
     % Forger un nouveau NOM UNIQUE pour la variable
-    % du prochain canal Ã  ajouter ou renommer.
+    % du prochain canal à ajouter ou renommer.
     %
     %---------------------------
     function lenom =nouvnom(obj)

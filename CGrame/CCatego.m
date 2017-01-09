@@ -3,16 +3,33 @@
 %
 % Pour travailler avec des classements de niveaux et catégories
 %
-% STRUCTURE CATEGO
-% catego(1,niveau,1)
-%                   .nom     -> nom du niveau
-%                   .ess(n)  -> 1 si l'essai  n  est encore disponible dans ce niveau
-%                   .ncat    -> Nb de catégorie pour ce niveau
-%                   .ness    -> Nb d'essai encore disponible pour ce niveau
-% catego(2,niveau,catégorie)
-%                   .nom     -> nom de la catégorie
-%                   .ess(n)  -> 1 si l'essai  n  appartient à cette catégorie
-%                   .ncat    -> Nb d'essai dans cette catégorie
+% STRUCTURE CATEGO ACTUELLE
+%
+% catego(1,niveau*,1)
+%              .nom     -> nom du niveau
+%              .ess(n)  -> 1 si l'essai  n  est encore disponible dans ce niveau
+%              .ness    -> Nb d'essai encore disponible pour ce niveau
+%              .ncat    -> Nb de catégorie pour ce niveau
+% catego(2,niveau*,catégorie*)
+%              .nom     -> nom de la catégorie
+%              .ess(n)  -> 1 si l'essai  n  appartient à cette catégorie
+%              .ncat    -> Nb d'essai dans cette catégorie
+%
+%___________________________________________________________
+% ON POURRAIT UTILISER UNE FORMULATION PLUS INTUIVE COMME...
+%
+% catego(niveau*)        -> Structure des niveaux
+%               .nom     -> nom du niveau
+%               .ess(n)  -> 1 si l'essai  n  est encore disponible dans ce niveau
+%               .ness    -> Nb d'essai encore disponible pour ce niveau
+%               .ncat    -> Nb de catégorie pour ce niveau
+%               .cat(catégorie*)       -> Structure des catégories
+%                              .nom    -> nom de la catégorie
+%                              .ess(n) -> 1 si l'essai  n  appartient à cette catégorie
+%                              .ncat   -> Nb d'essai dans cette catégorie
+%
+% *ou niveau et catégorie sont des entiers
+%
 %
 
 classdef CCatego < handle
@@ -118,14 +135,14 @@ classdef CCatego < handle
       vg.sauve =true;
     end
 
+    %--------------------------------------------
+    % Sert à bâtir la liste des essais à associer
+    % à une catégorie pour le niveau "leniv"
     %------------------------------------------------
     function lessai =BatirListeEssaiLibre(obj, leniv)
-      % Sert à bâtir la liste des essais à associer à une catégorie
-      % pour le niveau "leniv"
-      %
       lessai ='0 -  -';
       vg =obj.hF.Vg;
-      if vg.niveau && obj.Dato(1,leniv,1).ness
+      if vg.niveau > 0 && obj.Dato(1,leniv,1).ness > 0
         % On cherche les essais disponibles dans ce niveau
         hdchnl =obj.hF.Hdchnl;
         edispo =find(obj.Dato(1,leniv,1).ess);
@@ -141,24 +158,26 @@ classdef CCatego < handle
           end
           if nono
           	lestim =hdchnl.numstim(edispo(i));
-            if vg.nst && lestim && lestim <= vg.nst
+            if vg.nst > 0 && lestim > 0 && lestim <= vg.nst
               lessai{end+1} =[num2str(edispo(i)) '-' vg.nomstim{lestim}];
             else
               lessai{end+1} =[num2str(edispo(i)) '- - -'];
             end
           end
-        end  %for i=1:size(edispo)
+        end  % for i =1:length(edispo)
       end
     end
 
+    %---------------------------------------------------------
+    % Sert à bâtir la liste des essais associer à la catégorie
+    % "lacat" du niveau "leniv"
     %----------------------------------------------------------
     function lessaib =BatirListeEssaiAssocie(obj, leniv, lacat)
-      % Sert à bâtir la liste des essais associer à la catégorie
-      % "lacat" du niveau "leniv"
       lessaib ='0';
       % On vérifie que l'on a bien des essais dans cet CAT
       vg =obj.hF.Vg;
-      if vg.niveau && lacat <= obj.Dato(1,leniv,1).ncat  && obj.Dato(2,leniv,lacat).ncat
+      if (vg.niveau > 0) && (lacat <= obj.Dato(1,leniv,1).ncat) && ...
+         ~isempty(obj.Dato(2,leniv,lacat).ncat) && (obj.Dato(2,leniv,lacat).ncat > 0)
         hdchnl =obj.hF.Hdchnl;
         easso =find(obj.Dato(2,leniv,lacat).ess);
         lessaib ={};
@@ -173,7 +192,7 @@ classdef CCatego < handle
           end
           if nono
           	lestim =hdchnl.numstim(easso(i));
-            if vg.nst && lestim && lestim <= vg.nst
+            if vg.nst > 0 && lestim > 0 && lestim <= vg.nst
               lessaib{end+1} =[num2str(easso(i)) '-' vg.nomstim{lestim}];
             else
               lessaib{end+1} =[num2str(easso(i)) '- - -'];
