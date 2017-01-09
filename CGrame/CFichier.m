@@ -15,7 +15,7 @@ classdef CFichier < handle
     Vg =[];
     Hdchnl =[];
     Ptchnl =[];
-%   Tpchnl;     % voir CFichierAnalyse
+    % Tpchnl;     % voir CFichierAnalyse
     Catego =[];
     autre =[];
   end
@@ -29,6 +29,7 @@ classdef CFichier < handle
     % CONSTRUCTOR
     function thisObj =CFichier(letype)
       thisObj.Info =CFinfo();
+      thisObj.Vg =CVgAnalyse();
       thisObj.Vg.itype =letype;
       thisObj.Hdchnl =CHdchnl();
       thisObj.Ptchnl =CPtchnl(thisObj);
@@ -477,7 +478,7 @@ classdef CFichier < handle
     % était dans l'ancien format.
     %    entrada  -->  nom du fichier à vérifier
     % Au Retour
-    %    []       -->  mauvais format de fichier
+    %    []       -->  mauvais format de fichier (pas un format Analyse)
     %    false    -->  ancien format d'Analyse
     %    true     -->  nouveau format
     %-------------------------------------------

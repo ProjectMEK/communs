@@ -115,6 +115,9 @@ classdef CPts < handle
       obj.dttip.Draggable ='on';
     end
 
+    %-----------------------------------------
+    % Il faut implémenter "efface2()" dans les
+    % classes hérité "après" celle-ci.
     %-------------------------
     function efface(obj,a,b,c)
       ptchnl =obj.fichier.Ptchnl;
@@ -128,6 +131,9 @@ classdef CPts < handle
       obj.efface2();
     end
 
+    %----------------------------------------
+    % Il faut implémenter "bidon2()" dans les
+    % classes hérité "après" celle-ci.
     %------------------------
     function bidon(obj,a,b,c)
       ptchnl =obj.fichier.Ptchnl;
