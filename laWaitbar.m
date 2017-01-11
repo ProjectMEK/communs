@@ -11,11 +11,11 @@
 % 2- texte à afficher
 % 3- position horizontale(G,gauche,L,left,C,centre,center,D,droit,R,right)
 % 4- position verticale(T,top,H,haut,B,bas,bottom,C,centre,center)
-% 5- Handle de la référence
+% 5- Handle de la figure de référence
 %
 function varargout =laWaitbar(varargin)
 
-  %On commence par initialiser les variables au cas ou
+  % On commence par initialiser les variables au cas ou
   % elles ne seraient pas dans "varargin"
   Val =0;
   texto ='Test de waitbar';

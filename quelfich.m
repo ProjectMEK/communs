@@ -1,4 +1,6 @@
 %
+% GUI pour demander quel fichier on ouvre
+%
 % Fonction quelfich
 % Créateur: MEK, février 2009
 %

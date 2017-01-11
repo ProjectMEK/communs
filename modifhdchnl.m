@@ -1,6 +1,22 @@
-function ss =modifhdchnl(varargin)
-% Si un seul argument: hdchnl
-% autrement on veut créer un nouveau hdchnl vide...
+%
+% Transformation de la vieille structure HDCHNL vers la nouvelle
+% EN ENTRÉE
+%   varargin{1} structure hdchnl ou []
+%   varargin{2} nombre de canaux à créer  (si varargin{1} est vide)
+%   varargin{3} nombre d'essai à créer (si varargin{1} est vide)
+%
+% Si varargin{1} est vide, on créera une structure hdchnl vide.
+%
+% L'ancienne structure ressemblait à:  hdchnl(canal,essai).champ
+%
+% La nouvelle est soit  hdchnl.champ(canal, essai),
+%                 soit hdchnl.champ(essai)
+%                 ou hdchnl.champ{canal}
+%
+% EN SORTIE
+%   une structure hdchnl du nouveau format
+%
+function ss = modifhdchnl(varargin)
   hdchnl =varargin{1};
   lafin =0;
   if isempty(hdchnl)
@@ -16,18 +32,18 @@ function ss =modifhdchnl(varargin)
       ess =1;
     end
   end
-  ss.adname(can) ={[]};
-  ss.cindx(can) ={[]};
-  ss.sweeptime =zeros(can,ess,'single');
-  ss.rate =zeros(can,ess,'single');
-  ss.nsmpls =zeros(can,ess,'single');
-  ss.max =zeros(can,ess,'single');
-  ss.min =zeros(can,ess,'single');
-  ss.npoints =zeros(can,ess,'single');
-  ss.point =zeros(can,ess,'single');
-  ss.frontcut =zeros(can,ess,'single');
-  ss.numstim =zeros(1,ess,'single');
-  ss.comment(can,ess) ={[]};
+  ss.adname(can) ={[]};                                    % nom du canal
+  ss.cindx(can) ={[]};                                     % nom de la variable pour ce canal
+  ss.sweeptime =zeros(can,ess,'single');                   % temps d'acquisition en sec. pour ce canal/essai
+  ss.rate =zeros(can,ess,'single');                        % fréquence d'acquisition pour ce canal/essai
+  ss.nsmpls =zeros(can,ess,'single');                      % nombre d'échantillon pour ce canal/essai
+  ss.max =zeros(can,ess,'single');                         % valeur max pour ce canal/essai
+  ss.min =zeros(can,ess,'single');                         % valeur min pour ce canal/essai
+  ss.npoints =zeros(can,ess,'single');                     % nombre de point marqué pour ce canal/essai
+  ss.point =zeros(can,ess,'single');                       % indice dans ptchnl pour ce canal/essai
+  ss.frontcut =zeros(can,ess,'single');                    % temps coupé pour ce canal/essai
+  ss.numstim =zeros(1,ess,'single');                       % numéro du stimulus pour cet essai
+  ss.comment(can,ess) ={[]};                               % commentaire pour ce canal/essai
   if lafin
     return;
   end

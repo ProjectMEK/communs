@@ -1,17 +1,29 @@
+%
+% Suite au changement majeur dans la structure des matrices de Analyse,
+% on fait une vérification des différentes variables et on transforme la matrice
+% DTCHNL(3D) en autant de matrice (2D) qu'il y a de canaux.
+%
+% EN ENTRÉE
+%  obj         -->  objet de type CFichier ou par héritage CFichierAnalyse
+%  entrada  -->  nom du fichier à transformer
+%  salida    -->  nom du fichier de sauvegarde
+%  ww        -->  handle d'un waitbar
+%
+
 function dtchnl2can(obj, entrada, salida, ww)
-  % Suite au changement majeur dans la structure des matrices
-  % de Analyse, on fait une vérification. Si on a le bon format de fichier
-  % on retourne le nom passé dans entrada. Si non, on procède à la transformation
-  % avant de retourner le nom final.
-  %
+  % variable de controle de la création d'une waitbar
   delwb =false;
   if isempty(ww)
     delwb =true;
-  	ww =waitbar(0.001, 'conversion');
+  	ww =waitbar(0.001, 'Conversion');
   end
   vernouv =obj.NouvelVersion;
   waitbar(0.01,ww,'Conversion du fichier Matlab, veuillez patienter');
+  % on load le fichier à convertir
   pp =load(entrada);
+  %-------------------------------
+  % Les variables absentes sont crées vide
+  %-------------------------------
   if ~isfield(pp, 'ptchnl')
   	pp.ptchnl =[];
   end
@@ -21,16 +33,20 @@ function dtchnl2can(obj, entrada, salida, ww)
   if ~isfield(pp, 'catego')
   	pp.catego =[];
   end
+  % version du format matlab pour la sauvegarde
   txtver ='-V7.3';
   save(salida, '-Struct', 'pp', 'ptchnl',txtver);
   vg =pp.vg;
   vg.laver =vernouv;
   vg.otype =8;
+  % on remplace les 'NAN' par zéro
   ss =isnan(pp.dtchnl(:));
   if length(ss)
     pp.dtchnl(ss) =0;
   end
+  % total des étapes pour l'affichage dans la waitbar
   thermo =2*vg.ess*vg.nad;
+  % transformation de hdchnl au nouveau format
   hdchnl =modifhdchnl(pp.hdchnl);
   vg.nomstim ={};
   hdchnl.numstim =zeros(1, vg.ess);

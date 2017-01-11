@@ -1,7 +1,7 @@
 %
 % isSyntaxBorneValid(t)
-%
-%     param: t    string représentant un point ou une valeur temporelle ou une expression
+% (sera appelé par:  isSyntaxBornesValid())
+%     param: t    'String' représentant un point ou une valeur temporelle ou une expression
 %
 %     les valeurs de "t" possibles sont
 %     0123456789+-*/() Pi Pf P1 P2...

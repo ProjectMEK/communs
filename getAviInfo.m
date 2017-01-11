@@ -1,9 +1,14 @@
 %
-% on a déjà testé que le fichier existe
-% et peut être ouvert avec fopen()
+% on a déjà testé que le fichier existe et peut être ouvert avec fopen()
+%
+% Même si matlab a plusieurs fonctions pour lire les AVIfile, il est arrivé
+% que par manque de Codec, certain AVIfile n'était pas lisible...
+% J'ai donc développé cet utilitaire pour palier à ce manque!
+%
+% auteur:  MEK
+% entre les années 2000 et 2003
 %
 % Y800 = 808466521;
-%
 function v =getAviInfo(leFich)
   try
     fid =fopen(leFich, 'r');
@@ -13,9 +18,9 @@ function v =getAviInfo(leFich)
     v.VideoStreamHeader =lirListStrl(fid);
     v.VideoFrameHeader =lirListStrf(fid);
     fclose(fid);
-  catch me
+  catch labal
     fclose(fid);
-    rethrow(me);
+    rethrow(labal);
   end
 end
 

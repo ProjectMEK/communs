@@ -2,9 +2,9 @@
 % Affichage de la fenêtre "À propos"
 % 
 % en entrée on veut:
-%     une cellule avec les phrases à afficher.
-%     le nombre d'interligne à passer pour l'affichage.
-%     la FontSize, zéro --> valeur par défaut
+%   -  une cellule avec les phrases à afficher.
+%   -  le nombre d'interligne à passer pour l'affichage.
+%   -  la FontSize ( si zéro --> valeur par défaut )
 %
 % 26 février 2015, MEK
 %
@@ -20,6 +20,8 @@ function GUI_aPropos(foo, colore)
   if ~colore
     colore =[0 0.8 0.8];
   end
+  % on va centrer ce nouveau GUI horizontalement et verticalement
+  % par rapport à la figure courante (gcf).
   lapos =positionfen('C','C',fenx,feny);
   bordx =floor(0.1*fenx);
   largtext =floor(0.8*fenx);

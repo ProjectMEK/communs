@@ -2,16 +2,18 @@
 % Classe pour traiter les erreurs rencontrées
 %
 classdef CQueEsEsteError
-  %------
+
   methods (Static)
-    %-------
+
+    %---------------
     function disp(erreur)
       v =CQueEsEsteError.queEsEso(erreur);
       if ~isempty(v)
         disp(v);
       end
     end
-    %-------
+
+    %-------------------
     function val =queEsEso(e)
       PG =CParamGlobal.getInstance();
       dispError =PG.getDispError();
@@ -19,7 +21,7 @@ classdef CQueEsEsteError
         val =[];
       else
         if isa(e, 'MException')
-          val =CQueEsEsteError.esoEsClass(e, dispError);
+          val =CQueEsEsteError.esoEsUnaClass(e, dispError);
         elseif isa(e, 'char')
           val =e;
         elseif isa(e, 'numeric')
@@ -29,8 +31,9 @@ classdef CQueEsEsteError
         end
       end
     end
-    %-------
-    function val =esoEsClass(Me, forme)
+
+    %-------------------------------
+    function val =esoEsUnaClass(Me, forme)
       switch forme
       case 3
         val =[Me.identifier ': ' Me.message];
@@ -45,5 +48,6 @@ classdef CQueEsEsteError
         end
       end
     end
+
   end % methods
 end % Class

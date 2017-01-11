@@ -1,5 +1,5 @@
-% Function num2texte(X, N)
-%          num2texte(X)
+% Function T = num2texte(X, N)
+%          T =  num2texte(X)
 %
 % transformation de la variable numérique "X" au format texte
 % sur N caractères où on comble avec des zéros par la gauche.
