@@ -20,6 +20,9 @@ classdef (Sealed) CParamGlobal < handle
     %         3       :         oui              --> on affiche message seulement
     %-----------------------------------------------
     dispError =1;
+
+    % Est-ce que l'on travaille avec Matlab ou Octave
+    matlab =true;
   end
 
   methods (Access =private)
@@ -28,7 +31,8 @@ classdef (Sealed) CParamGlobal < handle
     % CONSTRUCTOR
     %------------------------
     function tO =CParamGlobal
-      % à voir
+      % Est-ce que l'on travaille avec Matlab ou Octave
+      tO.matlabOctave();
     end
 
   end  % methods (Access =private)
@@ -41,7 +45,7 @@ classdef (Sealed) CParamGlobal < handle
     %-------------------------
     function sObj =getInstance
       persistent localObj;
-      if isempty(localObj) || ~isvalid(localObj)
+      if isempty(localObj) || ~isa(localObj, 'CParamGlobal')
         localObj =CParamGlobal();
       end
       sObj =localObj;
@@ -51,8 +55,29 @@ classdef (Sealed) CParamGlobal < handle
 
   methods
 
+    %-----------------------------------------------------
+    % Comme il y a des différences de comportement dans le
+    % traitement des erreurs, on va déterminer dans quelle
+    % environnement on travaille.
+    %-----------------------------------------------------
+    function matlabOctave(tO)
+      
+      foo =ver();
+      for U =1:length(foo)
+        if strcmpi(foo(U).Name, 'octave')
+          tO.matlab =false;
+          break;
+        end
+      end
+
+    end
+
     %--------------
     % GETTER/SETTER
+    %-----------------------------
+    function val =getMatlab(tO)
+      val =tO.matlab;
+    end
     %-----------------------------
     function val =getDispError(tO)
       val =tO.dispError;
