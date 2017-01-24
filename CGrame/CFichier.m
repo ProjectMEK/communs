@@ -29,8 +29,6 @@ classdef CFichier < handle
     % CONSTRUCTOR
     function thisObj =CFichier(letype)
       thisObj.Info =CFinfo();
-      thisObj.Vg =CVgAnalyse();
-      thisObj.Vg.itype =letype;
       thisObj.Hdchnl =CHdchnl();
       thisObj.Ptchnl =CPtchnl(thisObj);
       thisObj.Catego =CCatego();

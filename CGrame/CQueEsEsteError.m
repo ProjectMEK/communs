@@ -7,17 +7,26 @@ classdef CQueEsEsteError
 
     %---------------
     function disp(erreur)
+
+      % On commence par décortiquer la variable "erreur"
       v =CQueEsEsteError.queEsEso(erreur);
+
+      % si le résultat est non vide alors on l'affiche
       if ~isempty(v)
         disp(v);
       end
     end
 
-    %-------------------
+    %------------------------
     function val =queEsEso(e)
+
+      % On va lire l'instance des paramètres globaux. (Globaux pour toutes les
+      % application qui utilisent les classes du dossier "communs/CGrame")
       PG =CParamGlobal.getInstance();
       dispError =PG.getDispError();
+
       if dispError == 0
+        % l'usager a choisi de ne pas afficher les messages d'erreurs
         val =[];
       else
         if isa(e, 'MException')
