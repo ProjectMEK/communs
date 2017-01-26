@@ -29,8 +29,12 @@ classdef CQueEsEsteError
         % l'usager a choisi de ne pas afficher les messages d'erreurs
         val =[];
       else
+
+        % l'usager a choisi d'afficher les messages d'erreurs
         if isa(e, 'MException')
           val =CQueEsEsteError.esoEsUnaClass(e, dispError);
+        elseif isa(e, 'struct')
+          val =CQueEsEsteError.esoEsUnaStruct(e, dispError);
         elseif isa(e, 'char')
           val =e;
         elseif isa(e, 'numeric')
@@ -41,7 +45,7 @@ classdef CQueEsEsteError
       end
     end
 
-    %-------------------------------
+    %-------------------------------------
     function val =esoEsUnaClass(Me, forme)
       switch forme
       case 3
@@ -56,6 +60,33 @@ classdef CQueEsEsteError
           end
         end
       end
+    end
+
+    %--------------------------------------------------------
+    % Lorsque le message d'erreur n'est pas contenu dans un
+    % Objet de la classe MException.
+    % Me est une structure qui reflète MException
+    % forme  nous indique quoi afficher (voir CParamGlobal.m)
+    %--------------------------------------------------------
+    function val =esoEsUnaStruct(Me, forme)
+      val =[];
+      % on va bâtir le message à afficher petit à petit en fonction
+      % des demandes spécifiées dans CParamGlobal() et des champs disponibles
+
+      if isfield(Me, 'message')
+        val =Me.message;
+      end
+
+      if isfield(Me, 'identifier')
+        val =[Me.identifier ': ' val];
+      end
+
+      if ~isfield(Me, 'stack')
+        for U =1:length(Me.stack)
+          val =sprintf('%s\n%s ligne: %i', val, Me.stack(U).name, Me.stack(U).line);
+        end
+      end
+
     end
 
   end % methods
