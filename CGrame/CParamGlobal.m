@@ -61,15 +61,7 @@ classdef (Sealed) CParamGlobal < handle
     % environnement on travaille.
     %-----------------------------------------------------
     function matlabOctave(tO)
-      
-      foo =ver();
-      for U =1:length(foo)
-        if strcmpi(foo(U).Name, 'octave')
-          tO.matlab =false;
-          break;
-        end
-      end
-
+      tO.matlab =isempty(ver('Octave'));
     end
 
     %--------------
