@@ -73,7 +73,13 @@ classdef CParamMark < handle
         S =str2func(class(tO));
         hType =S();
         % Lecture de ses properties
-        a =properties(hType);
+        if isempty(ver('Octave'))
+          % Matlab permet l'utilisation de la commande "properties"
+          a =getProp(hType);
+        else
+          % Octave ne le permet pas
+          a =fieldnames(hType);
+        end
         delete(hType);
         for U =1:length(a)
           if isfield(v, a{U})

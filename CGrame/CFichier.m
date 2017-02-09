@@ -529,7 +529,7 @@ classdef CFichier < handle
     %   hwb       -->  est un handle sur le waitbar actif
     %   hF        -->  est un handle sur une fonction, utilisé dans analyse
     %-----------------------------------------------------
-    function salida =correction(thisObj, entrada, hwb, hF)
+    function salida =correction(thisObj, entrada, hwb, hA, hF)
       palabras ={'**************************************';...
                  '*  Votre fichier Analyse doit être   *';...
                  '*  converti. Vous DEVRIEZ Donner un  *';...
@@ -544,7 +544,7 @@ classdef CFichier < handle
         return;
       elseif etalors            % on renomme
         [fnom,pnom] =uiputfile('*.mat','','nouveau.mat');
-        if ((length(fnom) == 1) & (fnom == 0)) | (~isempty(hF) & hF(fullfile(pnom,fnom)))
+        if ((length(fnom) == 1) & (fnom == 0)) | (~isempty(hF) & hA.(hF)(fullfile(pnom,fnom)))
           salida =[];
           return;
         end

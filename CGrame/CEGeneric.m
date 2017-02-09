@@ -31,6 +31,16 @@ classdef CEGeneric < handle
    	  disp(mot);
     end
 
+    % retournera l'ensemble de toutes les valeurs possibles
+    % en Matlab on ferait: enumeration(CEFich(1))
+    function M = octEnum(tO)
+      N =length(tO.list);
+      M(N) =0;
+      for U =1:N
+        M(U) =tO.(tO.list{U});
+      end
+    end
+
     % On retourne la valeur caractère/string de l'objet
     function txt = char(tO)
       txt =tO.cur;

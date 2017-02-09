@@ -17,6 +17,10 @@ function varargout =positioncur(varargin)
   fenpos =get(0,'pointerlocation');
   % position du moniteur courant
   pp =monitcur();
+  % Octave n'a pas encore implémenté la caractéristique "pointerlocation" et retourne [0 0]
+  if fenpos == [0 0]
+    fenpos =round(pp(3:4)/2);
+  end
   if nargin >= 4
   	horiz =lower(varargin{1});
   	verti =lower(varargin{2});
