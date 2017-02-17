@@ -23,6 +23,7 @@ classdef (Sealed) CParamGlobal < handle
 
     % Est-ce que l'on travaille avec Matlab ou Octave
     matlab =true;
+
   end
 
   methods (Access =private)

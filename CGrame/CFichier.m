@@ -26,13 +26,22 @@ classdef CFichier < handle
 
   methods
 
-    % CONSTRUCTOR
-    function thisObj =CFichier(letype)
-      thisObj.Info =CFinfo();
-      thisObj.Hdchnl =CHdchnl();
-      thisObj.Ptchnl =CPtchnl(thisObj);
-      thisObj.Catego =CCatego();
-      thisObj.Catego.hF =thisObj;
+    %------------------------------------------------
+    % Anciennement la fonction CONSTRUCTOR "CFichier"
+    %------------------------------------------------
+    function initCFichier(thisObj)
+
+      try
+        thisObj.Info =CFinfo();
+        thisObj.Hdchnl =CHdchnl();
+        thisObj.Ptchnl =CPtchnl(thisObj);
+        thisObj.Catego =CCatego();
+        thisObj.Catego.hF =thisObj;
+      catch moo;
+        CQueEsEsteError.dispOct(moo);
+        rethrow(moo);
+      end
+
     end
 
     % DESTRUCTOR
@@ -62,7 +71,23 @@ classdef CFichier < handle
     % on peut vouloir les comparer
     %------------------------------
     function Cok =find(thisObj,OFi)
-      Cok =(thisObj == OFi);
+
+      try
+        % version Matlab
+        Cok =(thisObj == OFi);
+      catch moo;
+        % version Octave
+        Cok =false;
+
+        % il faut au moins que les 2 soient des objets de la même classe
+        if strcmp(class(thisObj), class(OFi))
+          % la stratégie est d'utiliser une propriété unique connue si elle
+          % est identique dans les deux cas, c'est forcément le même handle
+          Cok =strcmp(thisObj.Info.fitmp, OFi.Info.fitmp);
+        end
+
+      end
+
     end
 
     %-------------------------------
@@ -70,49 +95,55 @@ classdef CFichier < handle
     % vers un fichier temporaire
     %-------------------
     function copycan(tO)
-      % on vérifie si une waitbar est active
-      hwb =findall(0, 'type','figure', 'name','WBarLecture');
-      TextLocal ='Création du fichier temporaire de travail';
-      delwb =false;
-      if isempty(hwb)
-        delwb =true;
-        hwb =waitbar(0.001, TextLocal);
-      else
-        waitbar(0.001, hwb, TextLocal);
-      end
+      try
+        % on vérifie si une waitbar est active
+        hwb =findall(0, 'type','figure', 'name','WBarLecture');
+        TextLocal ='Création du fichier temporaire de travail';
+        delwb =false;
+        if isempty(hwb)
+          delwb =true;
+          hwb =waitbar(0.001, TextLocal);
+        else
+          waitbar(0.001, hwb, TextLocal);
+        end
 
-      % Fichier source, vrai fichier
-      Fsrc =fullfile(tO.Info.prenom, tO.Info.finame);
-      % Fichier destination, fichier temporaire de travail
-      Fdst =tO.Info.fitmp;
+        % Fichier source, vrai fichier
+        Fsrc =fullfile(tO.Info.prenom, tO.Info.finame);
+        % Fichier destination, fichier temporaire de travail
+        Fdst =tO.Info.fitmp;
 
-      ncan =tO.Vg.nad;
-      hdchnl =tO.Hdchnl;
-      laver ='-V7';
+        ncan =tO.Vg.nad;
+        hdchnl =tO.Hdchnl;
+        laver ='-V7';
 
-    	% nom de la variable du premier canal
-    	lenom =hdchnl.cindx{1};
-    	% on load le premier canal
-    	A =load(Fsrc, lenom);
-    	% on le sauve dans le fichier temporaire
-%    	save(Fdst, '-struct', 'A', laver);
-    	save(Fdst, '-struct', 'A');
+      	% nom de la variable du premier canal
+      	lenom =hdchnl.cindx{1};
+      	% on load le premier canal
+      	A =load(Fsrc, lenom);
+      	% on le sauve dans le fichier temporaire
+%      	save(Fdst, '-struct', 'A', laver);
+      	save(Fdst, '-struct', 'A');
 
 disp('CFichier.copycan --> rendu ici laver ou pas, voir avec Matlab...');
 
 
-      % puis on fait la même chose pour les autres canaux
-      for U =2:ncan
-      	waitbar(0.95*single(U)/single(ncan), hwb);
-      	A =[];
-      	lenom =hdchnl.cindx{U};
-      	A =load(Fsrc, lenom);
-      	save(Fdst, '-struct', 'A', '-append');
-      end
+        % puis on fait la même chose pour les autres canaux
+        for U =2:ncan
+        	waitbar(0.95*single(U)/single(ncan), hwb);
+        	A =[];
+        	lenom =hdchnl.cindx{U};
+        	A =load(Fsrc, lenom);
+        	save(Fdst, '-struct', 'A', '-append');
+        end
 
-      % Si on a créé un waitbar, on le delete
-      if delwb
-        delete(hwb);
+        % Si on a créé un waitbar, on le delete
+        if delwb
+          delete(hwb);
+        end
+
+      catch moo;
+        CQueEsEsteError.dispOct(moo);
+        rethrow(moo);
       end
 
     end
