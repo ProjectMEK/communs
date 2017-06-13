@@ -15,8 +15,11 @@ classdef CFinfo < handle
 
   methods
 
-    function delete(obj)              % DESTRUCTOR
-      if ~isempty(obj.fitmp) && ~isempty(dir(obj.fitmp))
+    %-------------------
+    % DESTRUCTOR
+    %-------------------
+    function delete(obj)
+      if exist(obj.fitmp) == 2
     	  delete(obj.fitmp);
       end
     end

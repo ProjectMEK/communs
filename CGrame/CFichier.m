@@ -61,7 +61,7 @@ classdef CFichier < handle
       val =thisObj.NouvelVersion;
     end
 
-    function thisObj = set.NouvelVersion(thisObj,value)
+    function thisObj = set.NouvelVersion(thisObj, ~)
       % rien à faire, on ne touche pas à cette propriété
     end
 
@@ -124,7 +124,9 @@ classdef CFichier < handle
 %      	save(Fdst, '-struct', 'A', laver);
       	save(Fdst, '-struct', 'A');
 
-disp('CFichier.copycan --> rendu ici laver ou pas, voir avec Matlab...');
+%**************************************************************************************
+% lemot =sprintf('CFichier.copycan --> rendu ici laver ou pas, voir avec Matlab...\n');
+% disp(lemot);
 
 
         % puis on fait la même chose pour les autres canaux
@@ -182,6 +184,7 @@ disp('CFichier.copycan --> rendu ici laver ou pas, voir avec Matlab...');
     % can --> numéro du canal
     %-----------------------------------------
     function getcaness(thisObj, HDt, ess, can)
+
       if nargin == 4
         HDt.Nom =thisObj.Hdchnl.cindx{can};
       end
@@ -192,6 +195,7 @@ disp('CFichier.copycan --> rendu ici laver ou pas, voir avec Matlab...');
         s =load(thisObj.Info.fitmp, HDt.Nom);
         HDt.Dato.(HDt.Nom) =s.(HDt.Nom)(:,ess);
       end
+
     end
 
     %-----------------------------------------
@@ -455,6 +459,10 @@ disp('CFichier.copycan --> rendu ici laver ou pas, voir avec Matlab...');
         ptmp =find(Hd.npoints(:) > 0);
         % on se fait un backup de la matrice des infos des points marqués
         Dato =Pt.Dato;
+        if size(Dato, 3) == 1
+          foo =size(Dato);
+          Dato(:,:,2) =zeros(foo);
+        end
         % mise à zéro de la matrice des infos des points marqués
         Pt.Dato =zeros(tmp,length(ptmp),2);
         % Il reste à rebâtir la matrice des points marqués à partir
@@ -613,13 +621,24 @@ disp('CFichier.copycan --> rendu ici laver ou pas, voir avec Matlab...');
     %   hF        -->  est un handle sur une fonction, utilisé dans analyse
     %-----------------------------------------------------
     function salida =correction(thisObj, entrada, hwb, hA, hF)
-      palabras ={'**************************************';...
-                 '*  Votre fichier Analyse doit être   *';...
-                 '*  converti. Vous DEVRIEZ Donner un  *';...
-                 '*  nouveau nom afin de conserver     *';...
-                 '*  intacte l''ancien fichier.         *';...
-                 '*                                    *';...
-                 '**************************************'};
+      OA =CAnalyse.getInstance();
+      if OA.OPG.matlab
+        palabras ={'**************************************';...
+                   '*  Votre fichier Analyse doit être   *';...
+                   '*  converti. Vous DEVRIEZ Donner un  *';...
+                   '*  nouveau nom afin de conserver     *';...
+                   '*  intacte l''ancien fichier.         *';...
+                   '*                                    *';...
+                   '**************************************'};
+      else
+        palabras ={'**************************************';...
+                   '*  Votre fichier Analyse doit etre   *';...
+                   '*  converti. Vous DEVRIEZ Donner un  *';...
+                   '*  nouveau nom afin de conserver     *';...
+                   '*  intacte l''ancien fichier.         *';...
+                   '*                                    *';...
+                   '**************************************'};
+      end
       lafig =gcf;
       etalors =CValet.fen3bton('Conseil avant conversion',palabras,'Renommer','Écraser',lafig);
       if isempty(etalors)       % on quitte

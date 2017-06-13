@@ -143,9 +143,10 @@ classdef CPtchnl < handle
       hdchnl =obj.Ofich.Hdchnl;
       N =hdchnl.npoints(canal,essai);
       if N > 1
-        V =obj.Dato(1:N, hdchnl.point(canal,essai),1);
-        [a, b] =sort(V);
-        obj.Dato(1:N, hdchnl.point(canal,essai),1) =V(b);
+        V =obj.Dato(1:N, hdchnl.point(canal,essai),:);
+        [a, b] =sort(V(:,1,1));
+        obj.Dato(1:N, hdchnl.point(canal,essai),1) =a;
+        obj.Dato(1:N, hdchnl.point(canal,essai),2) =V(b,1,2);
       end
     end
 

@@ -9,7 +9,7 @@ classdef CEGeneric < handle
     ppa ='';              % nom de la Classe Enum
     classe ='';           % nom de la classe des valeurs de l'énumération
     list ={};             % liste des propriétés de l'énumération
-    cur =[];              % valeur de l'objet courant
+    cur =[];              % valeur de l'objet courant (string/char)
   end
 
   methods
@@ -20,7 +20,7 @@ classdef CEGeneric < handle
           	tO.cur =VAL;
           end
         end
-      catch U
+      catch U;
       	rethrow(U);
       end
 
@@ -65,9 +65,9 @@ classdef CEGeneric < handle
       case {'double', 'single', 'uint16', 'uint8', 'int', 'logical'}
       	V = (tO.value() == K);
       case 'char'
-        V = strncmp(tO.char(), K, length(K));
+        V = strncmpi(tO.char(), K, length(K));
       otherwise
-      	V =false;
+        V =false;
       end
 
     end

@@ -1,3 +1,6 @@
+%
+% Classe pour remplacer temporairement les Enumeration de Matlab
+%
 classdef CEFichOctave < CETypeUint16
   properties (Constant)
     analyse =uint16(1);
@@ -10,6 +13,12 @@ classdef CEFichOctave < CETypeUint16
   end
 
   methods (Access =private)
+
+    %------------------------------------------
+    % CONSTRUCTOR
+    %
+    % En entrée, class(VAL) --> char ou numeric 
+    %------------------------------------------
     function tO = CEFichOctave(VAL)
       try
         tO.setList({'analyse','Texte','A21XML','HDF5','EMG','Keithley'});
