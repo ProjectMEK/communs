@@ -14,6 +14,7 @@
 %   pt = Onmark(obj,canal,essai,pt,temps)
 %   lp = Onmarktyp(obj,canal,essai,point,temps,type)
 %        OnTrie(obj,canal,essai)
+%        trierPoints(obj,canal,essai,Pti,Ptf,MODE)
 %        PointBidon(obj, ess, canal, pt)
 %    s = valeurDePoint(obj,texte,can,ess)
 %    s = ValeurDeTemps(obj, texte, can, ess)
@@ -133,24 +134,46 @@ classdef CPtchnl < handle
       end
     end
 
-    %----------------------------------------
+    %------------------------------------------
+    % Triage de tous les points du canal/essai.
     % Dans la fonction d'importation de point
     % Il est demandé si on veut trier.
     %
-    % Faudrait vérifier le tri sur le type??
-    %-------------------------------
-    function OnTrie(obj,canal,essai)
+    % MODE --> 'ascend' ou 'descend'
+    %------------------------------------------
+    function OnTrie(obj,canal,essai,MODE)
       hdchnl =obj.Ofich.Hdchnl;
       N =hdchnl.npoints(canal,essai);
       if N > 1
         V =obj.Dato(1:N, hdchnl.point(canal,essai),:);
-        [a, b] =sort(V(:,1,1));
+        [a, b] =sort(V(:,1,1),MODE);
         obj.Dato(1:N, hdchnl.point(canal,essai),1) =a;
         obj.Dato(1:N, hdchnl.point(canal,essai),2) =V(b,1,2);
       end
     end
 
-    %-----------------------------------
+    %-------------------------------------------------
+    % Triage des points [Pti à Ptf] du canal/essai.
+    %
+    % MODE --> 'ascend' ou 'descend'
+    %-------------------------------------------------
+    function trierPoints(obj,canal,essai,Pti,Ptf,MODE)
+      hdchnl =obj.Ofich.Hdchnl;
+      N =hdchnl.npoints(canal,essai);
+      if Pti > Ptf
+        foo =Pti;
+        Pti =Ptf;
+        Ptf =foo;
+      end
+      if N > 1 & Pti > 0 & Ptf-Pti > 0 & Ptf <= N
+        V =obj.Dato(Pti:Ptf, hdchnl.point(canal,essai),:);
+        [a, b] =sort(V(:,1,1),MODE);
+        obj.Dato(Pti:Ptf, hdchnl.point(canal,essai),1) =a;
+        obj.Dato(Pti:Ptf, hdchnl.point(canal,essai),2) =V(b,1,2);
+      end
+    end
+
+    %-----------------------------------------------------------
     % INSÉRER un point à l'endroit point
     %
     % On décalera les points en fonction du rang demandé.
@@ -165,7 +188,7 @@ classdef CPtchnl < handle
     %   point -->  numéro du point à insérer
     %   temps -->  temps en échantillon à marquer
     %   type  -->  numéro du type de point (range possible -1:3)
-    %-----------------------------------------------------
+    %-----------------------------------------------------------
     function inserepoint(obj,canal,essai,point,temps,type)
       hdchnl =obj.Ofich.Hdchnl;
       dernier =hdchnl.npoints(canal,essai);
