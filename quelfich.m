@@ -17,8 +17,12 @@ function varargout =quelfich(varargin)
   letit =varargin{2};
   multi =varargin{3};
   %--------------------------------------------------------------------------------
-  % Avec Octave, si une figure est 'modal' on ne peut utiliser uigetfile par-dessus
-  test =findall('Type','figure' , 'WindowStyle','modal');
+  try
+    % Avec Octave, si une figure est 'modal' on ne peut utiliser uigetfile par-dessus
+    test =findall('Type','figure' , 'WindowStyle','modal');
+  catch fiou
+    test =[];
+  end
   if ~isempty(test)
     set(test, 'WindowStyle','normal');
   end
