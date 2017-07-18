@@ -8,7 +8,7 @@
 
 classdef (Sealed) CParamGlobal < handle
 
-  properties (Access =private)
+  properties (SetAccess =private)
     %_______________________________________________
     % la propriété dispError devrait être consulté
     % avant d'afficher les message d'erreur.
@@ -23,6 +23,7 @@ classdef (Sealed) CParamGlobal < handle
 
     % Est-ce que l'on travaille avec Matlab ou Octave
     matlab =true;
+
   end
 
   methods (Access =private)

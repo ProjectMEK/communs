@@ -30,17 +30,17 @@ classdef CVgFichier < handle
     tri =1;                    % essai à afficher
     toutri =false;             % afficher tous les essais
     cat =1;                    % catégorie à afficher
-    xy =0;                     % affiche X vs Y plutôt que X vs temps
+    xy =false;                 % affiche X vs Y plutôt que X vs temps
     x =[];
     y =[];
     zoom =1;
     zoomonoff =1;
-    affcoord =CEOnOff(false);  % afficher le DataCursor
+    affcoord =false;           % afficher le DataCursor
     ligne =0;
     colcan =true;              % afficher couleur pour canaux
     coless =false;
     colcat =true;
-    legende =false;
+    legende =false;            % afficher la légende
     letemps =0;
     defniv =1;
     permute =0;
@@ -48,13 +48,13 @@ classdef CVgFichier < handle
     filtp =0;
     filtpmin =0.0;
     filtpmax =0.1;
-    xymarkx =1;
+    xymarkx =true;
     xymarkxecart =10;
     xymarkyecart =10;
     loq =1;
     xlim =0;
     ylim =0;
-    trich =0;
+    trich =0;                  % affichage proportionnel de toutes les courbes
     deroul =[0.0100 0.0500];
     multiaff =[];
     xval =[0 1];
@@ -71,6 +71,8 @@ classdef CVgFichier < handle
     %-------
     function V = databrut(tO)
       V =CDefautFncBase.databrut(tO, 'CVgFichier');
+      % du côté Octave il ne faut pas avoir d'objet dans cette variable
+      V.itype =V.itype+0;
     end
     %-------
     function clone = copie(tO)

@@ -34,7 +34,7 @@ function dtchnl2can(obj, entrada, salida, ww)
   	pp.catego =[];
   end
   % version du format matlab pour la sauvegarde
-  txtver ='-V7.3';
+  txtver ='-V7';
   save(salida, '-Struct', 'pp', 'ptchnl',txtver);
   vg =pp.vg;
   vg.laver =vernouv;

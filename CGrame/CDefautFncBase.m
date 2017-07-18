@@ -23,11 +23,20 @@ classdef CDefautFncBase
         if isa(V, Type)
           V =CDefautFncBase.databrut(V, class(V));
         end
+
         % Création d'un objet Type
         S =str2func(Type);
         hType =S();
-        % Lecture de ses properties
-        a =properties(hType);
+
+        K =CParamGlobal.getInstance();
+        if K.matlab
+          % Matlab permet l'utilisation de la commande "properties"
+          a =getProp(hType);
+        else
+          % Octave ne le permet pas
+          a =fieldnames(hType);
+        end
+
         delete(hType);
         for U =1:length(a)
           if isfield(V, a{U})
@@ -35,6 +44,7 @@ classdef CDefautFncBase
           end
         end
       end
+
     end
 
     %--------------------------------
@@ -45,7 +55,16 @@ classdef CDefautFncBase
       % Création d'un objet Type
       S =str2func(Type);
       hType =S();
-      a =properties(hType);
+
+      K =CParamGlobal.getInstance();
+      if K.matlab
+        % Matlab permet l'utilisation de la commande "properties"
+        a =getProp(hType);
+      else
+        % Octave ne le permet pas
+        a =fieldnames(hType);
+      end
+
       delete(hType);
       for U =1:length(a)
         V.(a{U}) =lobjet.(a{U});

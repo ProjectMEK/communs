@@ -22,11 +22,15 @@ classdef CValet
       %***********************************************
       % DÉFINITION DES VARIABLES "GLOBALES" PAR DÉFAUT
       %-----------------------------------------------
+      %
+      % enlevé 7 février 2017
+      % 'DefaultFigureMenuBar','none'  --> fonctionne mal avec Octave
+      %
       set(0,'DefaultFigurePointer','cross',...
             'DefaultFigurePointerShapeCData',fleur,...
             'DefaultFigurePointerShapeHotSpot',[1 8],...
             'DefaultFigureUnits','pixels',...
-            'DefaultFigureMenuBar','none', ...
+            'DefaultFiguretoolbar','none', ...
             'DefaultFigureNumberTitle','off', ...
             'DefaultFigureWindowStyle','normal', ...
             'DefaultFigureDockControls','off',...
@@ -81,14 +85,14 @@ classdef CValet
     %---------------------------------------
     % création d'une fenêtre avec 3 boutons
     %--------------------------------------------------------
-    function Val =fen3bton(letitre,question,bout1,bout2,hndl)
+    function Val =lafen3bton(letitre,question,bout1,bout2,hndl)
       % varargin{1}  le titre de la fenêtre
       % varargin{2}  le texte à afficher {cellule}
       % varargin{3}  le label du premier bouton
       % varargin{4}  le label du deuxième bouton
       % varargin{5}  le handle de la fenêtre repère
       %
-      % retournera [] si on cancel on ferme la fenêtre
+      % retournera [] si on cancel ou ferme la fenêtre
       %             1 si on choisi le premier bouton
       %             0 si on choisi le deuxième bouton
       ligne =length(question);
@@ -99,9 +103,18 @@ classdef CValet
            'name',letitre, 'NumberTitle','off', 'DefaultUIControlBackgroundColor',[0.8 0.8 0.8],...
            'defaultUIControlunits','pixels',...
            'defaultUIControlFontSize',9, 'Resize','off');
+      lafontsize =10;
       letx =uicontrol('parent',fig, 'position',postext, 'style','text',...
-                      'FontName','FixedWidth','FontSize',10);
-      [question,pos] =textwrap(letx,question);
+                      'FontName','FixedWidth','FontSize',lafontsize);
+      try
+        [question,pos] =textwrap(letx,question);
+      catch moo;
+        pos(3) =0;
+        for U =1:length(question)
+          pos(3) =max(pos(3), length(question{U}));
+        end
+        pos(3) =round(pos(3)*0.6*lafontsize);
+      end
       postext(3) =pos(3);
       large =postext(3)+2*marge;
       lapos =positionfen('C','C',large,haut,hndl);
@@ -126,6 +139,35 @@ classdef CValet
       elseif strncmp(ccc,'cancelo',7)     % Oui
       	Val =true;
       elseif strncmp(ccc,'canceln',7)     % Non
+      	Val =false;
+      end
+    end
+
+    %---------------------------------------
+    % création d'une fenêtre avec 3 boutons
+    % on va se servir de la fonction "questdlg" qui existe
+    % dans les deux environnements.
+    %--------------------------------------------------------
+    function Val =fen3bton(letitre,question,bout1,bout2)
+      % varargin{1}  le titre de la fenêtre
+      % varargin{2}  le texte à afficher {cellule}
+      % varargin{3}  le label du premier bouton
+      % varargin{4}  le label du deuxième bouton
+      % varargin{5}  le handle de la fenêtre repère
+      %
+      % retournera [] si on cancel ou ferme la fenêtre
+      %             1 si on choisi le premier bouton
+      %             0 si on choisi le deuxième bouton
+      CANCELER ='Canceler';
+      ccc =questdlg(question, letitre, bout1, bout2, CANCELER, bout1);
+
+      if isempty(ccc)                                      % on a fermé la fenêtre
+        Val =[];
+      elseif strncmp(ccc, CANCELER, length(CANCELER))      % on quitte
+      	Val =[];
+      elseif strncmp(ccc, bout1, length(bout1))            % on a cliqué le bout1
+      	Val =true;
+      elseif strncmp(ccc, bout2, length(bout2))            % on a cliqué le bout2
       	Val =false;
       end
     end

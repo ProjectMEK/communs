@@ -16,6 +16,17 @@ function varargout =quelfich(varargin)
   lenom =varargin{1};
   letit =varargin{2};
   multi =varargin{3};
+  %--------------------------------------------------------------------------------
+  try
+    % Avec Octave, si une figure est 'modal' on ne peut utiliser uigetfile par-dessus
+    test =findall('Type','figure' , 'WindowStyle','modal');
+  catch fiou
+    test =[];
+  end
+  if ~isempty(test)
+    set(test, 'WindowStyle','normal');
+  end
+  %--------------------------------------------------------------------------------
   cual =0;
   if multi
   	[fname,pname,cual] =uigetfile(lenom,letit,'MultiSelect','on');
@@ -34,6 +45,12 @@ function varargout =quelfich(varargin)
       cual =1;
     end
   end
+  %--------------------------------------------------------------------------------
+  % On ré-établi les mêmes conditions que l'on avait à l'entrée de cette fonction
+  if ~isempty(test)
+    set(test, 'WindowStyle','modal');
+  end
+  %--------------------------------------------------------------------------------
   varargout{1} =fname;
   varargout{2} =pname;
   varargout{3} =cual;

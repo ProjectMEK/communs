@@ -22,8 +22,22 @@ function varargout =laWaitbar(varargin)
   pHor ='C';
   pVer ='C';
 
-  %Si aucune figure n'existe
-  if isempty(findobj('Type', 'figure'))
+  % Pour le handle de la figure de référence,
+  % il faut savoir que une waitbar est une figure.
+  try
+    % Octave ne prend pas obligatoirement un ensemble dans lequel chercher
+    lesFig =findall('Type','figure');
+    lesFigWb =findall('Type','figure', 'tag','waitbar');         % Pour Octave, le tag --> 'waitbar'
+  catch Moo;
+    lesFig =findall(0, 'Type','figure');
+    lesFigWb =findall(0, 'Type','figure', 'tag','TMWWaitbar');   % Pour Matlab, le tag --> 'TMWWaitbar'
+  end
+
+  if isempty(lesFig)
+    % Si aucune figure n'existe
+    hdl =[];
+  elseif length(lesFigWb) == length(lesFig)
+    % si les figure sont des waitbar
     hdl =[];
   else
     hdl =gcf;

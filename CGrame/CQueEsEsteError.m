@@ -5,7 +5,9 @@ classdef CQueEsEsteError
 
   methods (Static)
 
-    %---------------
+    %---------------------------------------------------
+    % On formatte les messages d'erreur pour l'affichage
+    %--------------------
     function disp(erreur)
 
       % On commence par décortiquer la variable "erreur"
@@ -15,13 +17,16 @@ classdef CQueEsEsteError
       if ~isempty(v)
         disp(v);
       end
+
     end
 
     %------------------------
     function val =queEsEso(e)
 
+      %-------------------------------------------------------------------------
       % On va lire l'instance des paramètres globaux. (Globaux pour toutes les
       % application qui utilisent les classes du dossier "communs/CGrame")
+      %-------------------------------------------------------------------------
       PG =CParamGlobal.getInstance();
       dispError =PG.getDispError();
 
@@ -70,23 +75,54 @@ classdef CQueEsEsteError
     %--------------------------------------------------------
     function val =esoEsUnaStruct(Me, forme)
       val =[];
+      lemess =[];
+      lident =[];
+
+      if isfield(Me, 'message')
+        lemess =Me.message;
+      end
+      if isfield(Me, 'identifier')
+        lident =Me.identifier;
+      end
+
       % on va bâtir le message à afficher petit à petit en fonction
       % des demandes spécifiées dans CParamGlobal() et des champs disponibles
 
-      if isfield(Me, 'message')
-        val =Me.message;
-      end
+      switch forme
 
-      if isfield(Me, 'identifier')
-        val =[Me.identifier ': ' val];
-      end
+      case 3
+        val =[lident ': ' lemess];
 
-      if ~isfield(Me, 'stack')
-        for U =1:length(Me.stack)
-          val =sprintf('%s\n%s ligne: %i', val, Me.stack(U).name, Me.stack(U).line);
+      case 2
+        val =lemess;
+
+      case 1
+        val =[lident ': ' lemess];
+        if isfield(Me, 'stack')
+          for U =1:length(Me.stack)
+            val =sprintf('%s\n%s ligne: %i', val, Me.stack(U).name, Me.stack(U).line);
+          end
         end
+
       end
 
+    end
+
+    %--------------------
+    function dispOct(MOO)
+      %-------------------------------------------------------------------------
+      % On va lire l'instance des paramètres globaux. (Globaux pour toutes les
+      % application qui utilisent les classes du dossier "communs/CGrame")
+      %-------------------------------------------------------------------------
+      PG =CParamGlobal.getInstance();
+      if ~PG.getMatlab()
+        S =findstr(MOO.stack(1).file, filesep());
+        if length(S) > 2
+          fnom =MOO.stack(1).file(S(end-2)+1:end);
+        end
+        lesMots =sprintf('[%s] %s ligne: %i', fnom, MOO.stack(1).name, MOO.stack(1).line);
+        disp(lesMots);
+      end
     end
 
   end % methods
