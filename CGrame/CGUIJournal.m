@@ -8,6 +8,7 @@
 %  tO = CGUIJournal(tO)
 %       delete(tO)
 %       initGui(tO)
+%       afficher(tO, varargin)
 %       reset(tO, varargin)
 %       ajouter(tO, T)
 %       sauve(tO, varargin)
@@ -47,11 +48,17 @@ classdef CGUIJournal < CParamJournal
     end
 
     %------------------------------
+    % Ré-afficher le GUI
+    %------------------------------
+    function afficher(tO, varargin)
+      set(tO.fig, 'visible','on');
+    end
+
+    %------------------------------
     % Effacer tous les commentaires
     %------------------------------
     function reset(tO, varargin)
       tO.initLesmots();
-      set(tO.fig, 'visible','on');
       set(findobj('tag','Editorial'), 'value',1, 'string',tO.lesmots);
     end
 
@@ -61,7 +68,6 @@ classdef CGUIJournal < CParamJournal
     function ajouter(tO, T)
       N =length(tO.lesmots)+1;
       tO.lesmots{N} =T;
-      set(tO.fig, 'visible','on');
       set(findobj('tag','Editorial'), 'string',tO.lesmots, 'value',N);
     end
 
