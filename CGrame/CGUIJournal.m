@@ -8,6 +8,7 @@
 %  tO = CGUIJournal(tO)
 %       delete(tO)
 %       initGui(tO)
+%       initLesmots(tO)
 %       afficher(tO, varargin)
 %       reset(tO, varargin)
 %       ajouter(tO, T)
@@ -34,6 +35,7 @@ classdef CGUIJournal < CParamJournal
     function onDelete(tO)
       if ~isempty(tO.fig)
         delete(tO.fig);
+        tO.fig =[];
       end
     end
 
@@ -45,6 +47,12 @@ classdef CGUIJournal < CParamJournal
         tO.initLesmots();
         tO.fig =GUIJournal(tO);
       end
+    end
+
+    function initLesmots(tO)
+      tO.lesmots ={' '};
+      tO.lesmots{end+1} =['Début de la journalisation: ' datestr(now)];
+      tO.lesmots{end+1} ='----------------------------------------------------------------------------';
     end
 
     %------------------------------
