@@ -77,6 +77,7 @@ classdef CGUIJournal < CParamJournal
       N =length(tO.lesmots)+1;
       tO.lesmots{N} =T;
       set(findobj('tag','Editorial'), 'string',tO.lesmots, 'value',N);
+      tO.afficher();
     end
 
     %-----------------------------
