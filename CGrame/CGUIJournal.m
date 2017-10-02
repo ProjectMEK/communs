@@ -70,11 +70,17 @@ classdef CGUIJournal < CParamJournal
       set(findobj('tag','Editorial'), 'value',1, 'string',tO.lesmots);
     end
 
-    %-----------------------------
+    %---------------------------------------------
     % Ajouter un commentaire
-    %-----------------------------
-    function ajouter(tO, T)
+    % EN entrée
+    %  T  texte à afficher/ajouter
+    %  N  nombre d'espace à ajouter avant le texte
+    %---------------------------------------------
+    function ajouter(tO, T, Nesp)
       N =length(tO.lesmots)+1;
+      if nargin == 3
+        T =[char(ones(1,Nesp)*32) T];
+      end
       tO.lesmots{N} =T;
       set(findobj('tag','Editorial'), 'string',tO.lesmots, 'value',N);
       tO.afficher();

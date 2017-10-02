@@ -51,7 +51,7 @@ classdef CValet
     %---------------------------------------------
     function GarbageCollector(src, event, thatObj)
       set(src, 'WindowButtonMotionFcn','');
-      pause(0.25);
+      pause(0.5);
       delete(thatObj);
     end
 

@@ -1,8 +1,8 @@
 %
 % classe CAideGUI
 %
-% pour permettre de rendre l'écriture un peu plus compacte lors de la création
-% des GUI...
+% pour permettre de rendre l'écriture des mfiles un peu plus compacte
+% lors de la création des GUI...
 %
 % MEK
 % août 2017
