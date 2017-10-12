@@ -202,7 +202,7 @@ classdef CFichier < handle
     % sauvegarde le canal avec tous ses essais
     % HDt --> handle sur un objet CDtchnl()
     % can --> numéro du canal
-    %-----------------------------------
+    %-----------------------------------------
     function setcanal(thisObj, HDt, can)
       if nargin == 3
         thisObj.rename(HDt, can);
@@ -211,11 +211,12 @@ classdef CFichier < handle
       save(thisObj.Info.fitmp, '-Struct', 'p', HDt.Nom, '-Append');
     end
 
-    %----------------------------------------
+    %-----------------------------------------
     % sauvegarde le canal pour les essais ess
     % HDt --> handle sur un objet CDtchnl()
     % ess --> numéro des essais à lire
     % can --> numéro du canal
+    %-----------------------------------------
     function setcaness(thisObj, HDt, ess, can)
       if nargin == 4
         thisObj.rename(HDt, can);
