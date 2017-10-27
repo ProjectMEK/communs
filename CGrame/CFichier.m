@@ -619,8 +619,9 @@ classdef CFichier < handle
     % Fonction pour passer de l'ancienne version à la nouvelle.
     %   entrada   -->  est le nom du fichier
     %   hwb       -->  est un handle sur le waitbar actif
+    %   batch     -->  true si on est en mode batch
     %-----------------------------------------------------
-    function salida =correction(thisObj, entrada, hwb)
+    function salida =correction(thisObj, entrada, hwb, batch)
       OA =CAnalyse.getInstance();
       if OA.OPG.matlab
         palabras ={'**************************************';...
@@ -640,7 +641,11 @@ classdef CFichier < handle
                    '**************************************'};
       end
       lafig =gcf;
-      etalors =CValet.fen3bton('Conseil avant conversion',palabras,'Renommer','Écraser',lafig);
+      if batch
+      	etalors =false;
+      else
+        etalors =CValet.fen3bton('Conseil avant conversion',palabras,'Renommer','Écraser',lafig);
+      end
       if isempty(etalors)       % on quitte
       	salida =[];
         return;
