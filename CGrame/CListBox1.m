@@ -47,8 +47,14 @@ classdef CListBox1 < handle
     end
 
     function setString(obj, texte)
-      letop =length(texte)+(length(texte) == 2);
-      set(obj.hnd, 'String',texte, 'max',letop);
+      long =length(texte);
+      letop =max(2,long);
+      V =obj.getValue();
+      V(V>long) =[];
+      if isempty(V)
+        V =1;
+      end
+      set(obj.hnd, 'value',1, 'String',texte, 'max',letop, 'value',V);
     end
 
     function V =getValue(obj)

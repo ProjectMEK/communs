@@ -238,8 +238,22 @@ classdef CFichier < handle
     %   can --> numéro du canal
     %----------------------------
     function delcan(thisObj, can)
+      OA =CAnalyse.getInstance();
+      % affichage d'un waitbar ou récupération si un est existant
+      ww =false;
+      hw =findobj('type','figure','name',OA.wbnom);
+      if isempty(hw)
+        hw =waitbar(0.01, 'Suppression des datas en cours...','name',OA.wbnom);
+        ww =true;
+      end
+      % paramètres pour le waitbar
+      NC =length(can);
+      step =1/NC;
+      tot =step/2;
       HDt =CDtchnl();
-      for U =1:length(can)
+      for U =1:NC
+        waitbar(tot,hw);
+        tot =tot+step;
         % lire le nom de la variable du canal
       	HDt.Nom =thisObj.Hdchnl.cindx{can(U)};
         % on vide les datas
@@ -248,6 +262,10 @@ classdef CFichier < handle
       	thisObj.setcanal(HDt);
       end
       delete(HDt);
+      if ww
+        % on delete le waitbar que nous avons créé
+        delete(hw);
+      end
     end
 
     %----------------------
