@@ -1,11 +1,11 @@
 %
-% classdef CGUIJournal < CParamJournal
+% classdef CJournalGUI < CJournalParam
 %
 % Classe de gestion du GUI GUIJournal
 % prendra en charge tous les callback du GUI
 %
 % METHODS
-%  tO = CGUIJournal(tO)
+%  tO = CJournalGUI(tO)
 %       delete(tO)
 %       initGui(tO)
 %       initLesmots(tO)
@@ -16,14 +16,14 @@
 %       sauvegarde(tO, fichnom)
 %
 %
-classdef CGUIJournal < CParamJournal
+classdef CJournalGUI < CJournalParam
 
   methods
 
     %-----------------------
     % CONSTRUCTOR
     %-----------------------
-    function tO = CGUIJournal(tO)
+    function tO = CJournalGUI(tO)
       tO.initGui();
     end
 
@@ -44,8 +44,12 @@ classdef CGUIJournal < CParamJournal
     %-------------------
     function initGui(tO)
       if isempty(tO.fig)
+        % afin de conserver le focus sur celle qui l'avait
+        fiig =gcf;
         tO.initLesmots();
         tO.fig =GUIJournal(tO);
+        pause(0.25);
+        figure(fiig);
       end
     end
 
@@ -77,6 +81,8 @@ classdef CGUIJournal < CParamJournal
     %  N  nombre d'espace à ajouter avant le texte
     %---------------------------------------------
     function ajouter(tO, T, Nesp)
+      % afin de ramener le focus sur la fenêtre qui l'avait
+      fiig =gcf;
       N =length(tO.lesmots)+1;
       if nargin == 3
         T =[char(ones(1,Nesp)*32) T];
@@ -84,6 +90,8 @@ classdef CGUIJournal < CParamJournal
       tO.lesmots{N} =T;
       set(findobj('tag','Editorial'), 'string',tO.lesmots, 'value',N);
       tO.afficher();
+      pause(0.25);
+      figure(fiig);
     end
 
     %-----------------------------

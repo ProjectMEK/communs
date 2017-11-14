@@ -20,6 +20,7 @@ classdef CBasePourFigure < handle
     function delete(tO)                 % DESTRUCTOR
       if ~isempty(tO.fig) && ishandle(tO.fig)
         delete(tO.fig);
+        tO.fig =[];
       end
     end
     %_____________________________________________

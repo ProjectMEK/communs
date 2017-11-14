@@ -1,9 +1,9 @@
 %
-% classdef CParamJournal < handle
+% classdef CJournalParam < handle
 %
 % METHODS
 %
-classdef CParamJournal < handle
+classdef CJournalParam < handle
 
   properties
       fig =[];
