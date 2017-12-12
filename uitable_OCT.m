@@ -41,23 +41,42 @@ function varargout = uitable_OCT(varargin)
     end
   end
   % Nom des rangées
-  if length(S.rownname) ~= S.nrow
-    S.rownname ={};
+  if length(S.rowname) ~= S.nrow
+    S.rowname ={};
     for U =1:S.nrow
-      S.rownname{end+1} =num2str(U);
+      S.rowname{end+1} =num2str(U);
     end
   end
   % fabrication du cadre
-  ppa =uipanel('parent',S.parent,'position',S.position,'tag',S.tag,'title','','BorderType','beveledin');
+  ppa =uipanel('parent',S.parent,'units','pixels','position',S.position,'tag',S.tag,'title','',...
+               'BorderType','beveledin','userdata',S.userdata);
   % calcul des dimensions des cellules
-  if isa(S.columnwidth,'cell')
-    S.columnwidth =S.columnwidth{1};
-  end
-  % Si l'usager a donné une valeur, on la conserve. reste à calculer la 1ère colonne
   lpan =S.position(3);
-  larg1 =lpan-S.columnwidth*S.ncol;
-  if larg1 < 1
-    % l'usager n'a rien donné. On va calculer la largeur des cell et la 1ère colonne
-    
+  largs =round(lpan/(S.ncol+0.5));
+  larg1 =lpan-largs*S.ncol;
+  % fabrication des cellules pour afficher les datas
+  A =CAideGUI();
+  A.posx=0;A.haut=min(22,round(S.position(4)/(S.nrow+1)));A.large=larg1;posy=S.position(4)-A.haut;A.posy=posy;
+  % colonne des titres des rangées
+  uicontrol('parent',ppa,'units','pixels','position',A.pos,'style','text');
+  for U=1:S.nrow
+    A.posy =A.posy-A.haut;
+    uicontrol('parent',ppa,'units','pixels','position',A.pos,'style','text',...
+              'string',S.rowname{U},'horizontalalignment','center');
+  end
+  % chacune des colonnes de datas
+  P=0;
+  for C=1:S.ncol
+    % on remonte en haut et on tasse de 1 vers la droite
+    A.posy=posy;A.posx=A.posx+A.large;A.large=largs;
+    % titre de la colonne
+    uicontrol('parent',ppa,'units','pixels','position',A.pos,'style','text',...
+              'string',S.columnname{C},'horizontalalignment','center');
+    for U=1:S.nrow
+      A.posy =A.posy-A.haut;
+      P =P+1;
+      uicontrol('parent',ppa,'units','pixels','position',A.pos,'style','edit','string',S.data{P},...
+                'userdata',[U C],'backgroundcolor',S.backgroundcolor);
+    end
   end
 end

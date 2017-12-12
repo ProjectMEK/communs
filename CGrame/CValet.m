@@ -44,17 +44,6 @@ classdef CValet
             'DefaultAxesButtonDownFcn',[]);
     end
 
-    %------------------
-    % GARBAGE COLLECTOR
-    % fonction pour nettoyer les Objets qui ont
-    % fini leur travail et sont désormais inutiles
-    %---------------------------------------------
-    function GarbageCollector(src, event, thatObj)
-      set(src, 'WindowButtonMotionFcn','');
-      pause(0.5);
-      delete(thatObj);
-    end
-
     %----------------------------------------------
     % Permet de replacer une fenêtre qui est sortie
     % du moniteur. Ça peut être suite à un ajout/changement

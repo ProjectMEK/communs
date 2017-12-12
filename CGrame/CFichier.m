@@ -208,7 +208,7 @@ classdef CFichier < handle
         thisObj.rename(HDt, can);
       end
       p =HDt.Dato;
-      save(thisObj.Info.fitmp, '-Struct', 'p', HDt.Nom, '-Append');
+      save(thisObj.Info.fitmp, '-struct', 'p', HDt.Nom, '-append');
     end
 
     %-----------------------------------------
@@ -230,7 +230,7 @@ classdef CFichier < handle
   	  	a =size(HDt.Dato.(HDt.Nom), 1);
   	  	p.(HDt.Nom)(1:a,ess) =HDt.Dato.(HDt.Nom);
       end
-      save(thisObj.Info.fitmp, '-Struct', 'p', HDt.Nom,'-Append');
+      save(thisObj.Info.fitmp, '-struct', 'p', HDt.Nom,'-append');
     end
 
     %----------------------------
