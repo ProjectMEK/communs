@@ -8,6 +8,9 @@
 %	On va donc se servir d'un uipanel comme "cadre" et les cellules de la uitable
 % seront des "uicontrol('style','text' ou 'edit')
 %
+% Dans la propriété "userdata" du uipanel, nous allons conserver la structure des
+% infos utiles à la gestion future.
+%
 function varargout = uitable_OCT(varargin)
   % on fabrique une structure contenant les propriétés permises
   S.parent =gcf;
