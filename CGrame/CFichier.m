@@ -169,12 +169,21 @@ classdef CFichier < handle
       if nargin == 3
         HDt.Nom =thisObj.Hdchnl.cindx{can};
       end
-      if isempty(whos('-file', thisObj.Info.fitmp, HDt.Nom))
+      % if isempty(whos('-file', thisObj.Info.fitmp, HDt.Nom))
+      % 	a.(HDt.Nom) =[];
+      % 	HDt.Dato =a;
+      % else
+      %   HDt.Dato =load(thisObj.Info.fitmp, HDt.Nom);
+      % end
+      try
+        a =load(thisObj.Info.fitmp, HDt.Nom);
+        if isempty(a)
+          a.(HDt.Nom) =[];
+        end
+      catch ss;
       	a.(HDt.Nom) =[];
-      	HDt.Dato =a;
-      else
-        HDt.Dato =load(thisObj.Info.fitmp, HDt.Nom);
       end
+    	HDt.Dato =a;
     end
 
     %-------------------------------------
@@ -188,12 +197,24 @@ classdef CFichier < handle
       if nargin == 4
         HDt.Nom =thisObj.Hdchnl.cindx{can};
       end
-      if isempty(whos('-file', thisObj.Info.fitmp, HDt.Nom))
-      	a.(HDt.Nom) =[];
-      	HDt.Dato =a;
-      else
-        s =load(thisObj.Info.fitmp, HDt.Nom);
-        HDt.Dato.(HDt.Nom) =s.(HDt.Nom)(:,ess);
+      % if isempty(whos('-file', thisObj.Info.fitmp, HDt.Nom))
+      % 	a.(HDt.Nom) =[];
+      % 	HDt.Dato =a;
+      % else
+      %   s =load(thisObj.Info.fitmp, HDt.Nom);
+      %   HDt.Dato.(HDt.Nom) =s.(HDt.Nom)(:,ess);
+      % end
+      try
+        a =load(thisObj.Info.fitmp, HDt.Nom);
+        if isempty(a)
+          a.(HDt.Nom) =[];
+          HDt.Dato =a;
+        else
+          HDt.Dato.(HDt.Nom) =a.(HDt.Nom)(:,ess);
+        end
+      catch ss;
+        a.(HDt.Nom) =[];
+        HDt.Dato =a;
       end
 
     end

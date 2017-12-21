@@ -50,9 +50,16 @@ function varargout = uitable_OCT(varargin)
       S.rowname{end+1} =num2str(U);
     end
   end
+  % format d'affichage
+  if length(S.userdata) ~= S.ncol
+    S.userdata ={};
+    for U =1:S.ncol
+      S.userdata{end+1} ='%9.3f';
+    end
+  end
   % fabrication du cadre
   ppa =uipanel('parent',S.parent,'units','pixels','position',S.position,'tag',S.tag,'title','',...
-               'BorderType','beveledin','userdata',S.userdata);
+               'BorderType','beveledin','userdata',S);
   % calcul des dimensions des cellules
   lpan =S.position(3);
   largs =round(lpan/(S.ncol+0.5));
@@ -68,7 +75,6 @@ function varargout = uitable_OCT(varargin)
               'string',S.rowname{U},'horizontalalignment','center');
   end
   % chacune des colonnes de datas
-  P=0;
   for C=1:S.ncol
     % on remonte en haut et on tasse de 1 vers la droite
     A.posy=posy;A.posx=A.posx+A.large;A.large=largs;
@@ -77,9 +83,30 @@ function varargout = uitable_OCT(varargin)
               'string',S.columnname{C},'horizontalalignment','center');
     for U=1:S.nrow
       A.posy =A.posy-A.haut;
-      P =P+1;
-      uicontrol('parent',ppa,'units','pixels','position',A.pos,'style','edit','string',S.data{P},...
-                'userdata',[U C],'backgroundcolor',S.backgroundcolor);
+      uicontrol('parent',ppa,'units','pixels','position',A.pos,'style','edit','string',S.data{U,C},...
+                'userdata',[U C],'backgroundcolor',S.backgroundcolor,'callback',@editCell);
     end
   end
+end
+
+%----------------------------------------------------------------
+% Pour simuler le comportement de la propriété 'CellEditCallback'
+%----------------------------------------------------------------
+function editCell(src,varargin)
+  % lecture des infos utiles du uipanel
+  Ppa =get(src,'parent');
+  S =get(Ppa,'userdata');
+  % lecture de la position "index"
+  indx =get(src,'userdata');
+  % vérification de la nouvelle valeur entrée
+  Vnum =str2num(get(src,'string'));
+  if isempty(Vnum)
+    Vnum =str2num(S.data{indx(1),indx(2)});
+  end
+  % on affiche en fonction du format demandé
+  Vtxt =sprintf(S.userdata{indx(2)}, Vnum);
+  set(src,'string',Vtxt);
+  % on sauvegarde pour le futur
+  S.data{indx(1),indx(2)} =Vtxt;
+  set(Ppa,'userdata',S);
 end

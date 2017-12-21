@@ -244,7 +244,8 @@ classdef CValet
       if A.modess < 0
         totess =A.f0ess;
       end
-      G0 =1/totcan;
+      % pour les plus finfino, pourquoi 0.751 ?
+      G0 =1/(totcan+0.751);
       G1 =0;
       G2 =G0/4;
       for U =1:totcan
@@ -611,9 +612,9 @@ classdef CValet
       Nhdchnl =hF1.Hdchnl;
       ptchnl =hF0.Ptchnl;
       Nptchnl =hF1.Ptchnl;
-      Nbcan =A.fincan-A.debcan;
+      Nbcan =A.fincan-A.debcan+1;
       for U =A.debcan:A.fincan
-        waitbar(U/(Nbcan), hwb);
+        waitbar((U-A.debcan+1)/(Nbcan), hwb);
         for V =A.debess:A.finess
           NU =U-A.debcan+1;
           NV =V-A.debess+1;
