@@ -14,14 +14,17 @@ function resultat =isSyntaxBorneValid(t)
   pat ='\s+';
   tt =regexprep(t, pat, '');
   if ~isempty(tt)
-    % ON VÉRIFIE LES SÉQUENCES ++ -- +- -+
-    pat1 ='[\+/\*-][\+/\*-]';
-    pat2 ='[^pif0123456789()\.\*/\+-]+';
-    pat3 ='[\+/\*-]$';
-    pat4 ='^[/\*]';
+    
+    pat1 ='[\+/\*-][\+/\*-]';                 % ON VÉRIFIE LES SÉQUENCES ++ -- +- -+
+    pat2 ='[^pif0123456789()\.\*/\+-]+';      % ON VÉRIFIE LES CARACTÈRES NON DÉSIRÉ, un ou plus
+    pat3 ='[\+/\*-]$';                        % ON VÉRIFIE SI ON FINI AVEC -+*/
+    pat4 ='^[/\*]';                           % ON VÉRIFIE SI ON COMMENCE AVEC */
+
     if ~isempty(regexp(tt, pat1)) || ~isempty(regexpi(tt, pat2)) || ~isempty(regexp(tt, pat3)) || ~isempty(regexp(tt, pat4))
-      return;
+      % rien à faire
+    else
+      resultat =true;
     end
-    resultat =true;
+
   end
 end

@@ -21,7 +21,7 @@
 %   ss = verifPt3(obj, v, can, ess)
 %
 % METHODS STATIC
-% [v, u] = retretted3(Texto, u)
+% [v, u] = onTretteP(Texto, u)
 %
 % On pourrait faire une fonction DUPLIC: un canal vers plusieurs ou
 %    N canal vers N canal... ptchnl.duplic(Vcan,Ncan) ...
@@ -105,7 +105,7 @@ classdef CPtchnl < handle
     %--------------------------------------------
     function pt =Onmark(obj,canal,essai,pt,temps)
       hdchnl =obj.Ofich.Hdchnl;
-      if pt
+      if pt > 0
         % on écrit sur le point "pt"
         if hdchnl.npoints(canal,essai) == 0
           % ce canal/essai n'a pas encore de point marqué
@@ -271,18 +271,28 @@ classdef CPtchnl < handle
     % texte peut être: [pi pf p1 p2... "3.65"]
     %
     % évolution nov-2012
-    % On peut maintenant donné comme valeur de point: P1+(Pf-Pi)/10
+    % On peut maintenant donner comme valeur de point: P1+(Pf-Pi)/10
     %-------------------------------------------
     function s =valeurDePoint(obj,texte,can,ess)
       try
+        foo1 =texte
         % On demande la valeur en temps
-        m =obj.valeurDeTemps(texte,can,ess);
+        m =obj.valeurDeTemps(texte,can,ess)
         % On retourne le résultat en nb d'échantillon
-        s =obj.temps2Echantillon(m,can,ess);
-      catch e
-        lesMots =sprintf('Erreur dans la fonction: %s\n%s (Canal: %d)|(Essai: %d)', ...
-                          e.identifier, e.message, can, ess);
-        disp(lesMots);
+        s =obj.temps2Echantillon(m,can,ess)
+      catch e;
+        try
+          % pour matlab
+          lesMots =sprintf('Erreur dans la fonction: %s\n%s (Canal: %d)|(Essai: %d)', ...
+                            e.identifier, e.message, can, ess);
+          disp(lesMots);
+        catch moo;
+          % pour Octave
+          disp(e.message)
+          for U=1:length(e.stack)
+            disp(e.stack(U))
+          end
+        end
         s =[];
       end
     end
@@ -299,10 +309,18 @@ classdef CPtchnl < handle
       try
         % On retourne le résultat en secondes
         s =obj.tretted3(texte,can,ess);
-      catch e
-        lesMots =sprintf('Erreur dans la fonction: %s\n%s (Canal: %d)|(Essai: %d)', ...
+      catch e;
+        try
+          % pour matlab
+          lesMots =sprintf('Erreur dans la fonction: %s\n%s (Canal: %d)|(Essai: %d)', ...
                           e.identifier, e.message, can, ess);
-        disp(lesMots);
+        catch moo;
+          % pour Octave
+          disp(sss.message)
+          for U=1:length(sss.stack)
+            disp(sss.stack(U))
+          end
+        end
         s =[];
       end
     end
@@ -341,47 +359,79 @@ classdef CPtchnl < handle
     %
     %--------------------------------------
     function tt =tretted3(tO, TT, can, ess)
-      if ~isSyntaxBorneValid(TT)
-        me =MException('COMMUNS:CPtchnl:tretted3', 'Syntaxe (%s) non valide', TT);
-        throw(me);
-      end
-      % ON ENLÈVE LES BLANK
-      pat ='\s+';
-      TT =regexprep(TT, pat, '');
-      if isempty(regexpi(TT, 'p')) && isempty(str2num(TT))  % pas de "p" mais d'autres caractères
-        me =MException('COMMUNS:CPtchnl:tretted3', ['L''expression: %s n''est pas valide'], TT);
-        throw(me);
-      else
-        u =java.lang.StringBuffer;
-        leTop =length(TT);
-        i =1;
-        while (i <= leTop)
-          if strncmpi(TT(i), 'p', 1)       % on a un "point"
-            [val, i] =tO.retretted3(TT, i);
-            i =i-1;
-            if isempty(val)
-              me =MException('COMMUNS:CPtchnl:tretted3', ...
-                            ['L''expression: %s n''est pas valide'], TT);
-              throw(me);
-            end
-            v =tO.verifPt3(val, can, ess);
-            if isempty(v)
-              me =MException('COMMUNS:CPtchnl:tretted3', ...
-                            ['L''expression: %s n''est pas valide'], TT);
-              throw(me);
-            end
-            u.append(num2str(v, 28));
-          else
-            u.append(TT(i));
+      try
+        if ~isSyntaxBorneValid(TT)
+          try
+            me =MException('COMMUNS:CPtchnl:tretted3', 'Syntaxe (%s) non valide', TT);
+            throw(me);
+          catch moo;
+            me =Oct_MException('COMMUNS:CPtchnl:tretted3', ['Syntaxe "' TT '" non valide']);
+            rethrow(me);
           end
-          i =i+1;
         end
-      end
-      tt =str2num(u.toString());
-      if isempty(tt)
-        me =MException('COMMUNS:CPtchnl:tretted3', ...
-                      ['L''expression: %s n''est pas valide'], TT);
-        throw(me);
+        % ON ENLÈVE LES BLANK
+        pat ='\s+';
+        TT =regexprep(TT, pat, '');
+        if isempty(regexpi(TT, 'p')) && isempty(str2num(TT))  % pas de "p" mais d'autres caractères
+          try
+            me =MException('COMMUNS:CPtchnl:tretted3', ['L''expression: %s n''est pas valide'], TT);
+            throw(me);
+          catch moo;
+            me =Oct_MException('COMMUNS:CPtchnl:tretted3', ['L''expression: "' TT '" n''est pas valide']);
+            rethrow(me);
+          end
+        else
+          u =java.lang.StringBuffer;
+          leTop =length(TT);
+          i =1;
+          while (i <= leTop)
+            if strncmpi(TT(i), 'p', 1)       % on a un "point"
+              [val, i] =tO.onTretteP(TT, i);
+              i =i-1;
+              if isempty(val)
+                try
+                  me =MException('COMMUNS:CPtchnl:tretted3', ...
+                                ['L''expression: %s n''est pas valide'], TT);
+                  throw(me);
+                catch moo
+                  me =Oct_MException('COMMUNS:CPtchnl:tretted3', ...
+                                ['L''expression: "' TT '" n''est pas valide']);
+                  rethrow(me);
+                end
+              end
+              v =tO.verifPt3(val, can, ess);
+              if isempty(v)
+                try
+                  me =MException('COMMUNS:CPtchnl:tretted3', ...
+                                ['L''expression: %s n''est pas valide'], TT);
+                  throw(me);
+                catch moo;
+                  me =Oct_MException('COMMUNS:CPtchnl:tretted3', ...
+                                ['L''expression: "' TT '" n''est pas valide']);
+                  rethrow(me);
+                end
+              end
+              u.append(num2str(v, 28));
+            else
+              u.append(TT(i));
+            end
+            i =i+1;
+          end
+        end
+        tt =str2num(u.toString());
+        if isempty(tt)
+          try
+            me =MException('COMMUNS:CPtchnl:tretted3', ...
+                          ['L''expression: %s n''est pas valide'], TT);
+            throw(me);
+          catch moo;
+            me =MException('COMMUNS:CPtchnl:tretted3', ...
+                          ['L''expression: "' TT '" n''est pas valide']);
+            rethrow(me);
+          end
+        end
+      catch ss;
+        % rien à faire
       end
     end
 
@@ -422,7 +472,7 @@ classdef CPtchnl < handle
     % L'indicateur "u" pointe sur un caractère "p"
     % en arrivant dans cette fonction
     %-------
-    function [v, u] =retretted3(Texto, u)
+    function [v, u] =onTretteP(Texto, u)
       u =u+1;
       v ='';
       if u > length(Texto)     % le "p" était le dernier char
@@ -442,5 +492,6 @@ classdef CPtchnl < handle
         end
       end
     end
+
   end  %methods (Static)
 end  %classdef

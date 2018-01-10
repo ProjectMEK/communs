@@ -97,10 +97,10 @@ classdef CQueEsEsteError
         val =lemess;
 
       case 1
-        val =[lident ': ' lemess];
+        val ={[lident ': ' lemess]};
         if isfield(Me, 'stack')
           for U =1:length(Me.stack)
-            val =sprintf('%s\n%s ligne: %i', val, Me.stack(U).name, Me.stack(U).line);
+          val{end+1} =[Me.stack(U).name ' ligne: ' num2str(Me.stack(U).line)];
           end
         end
 
