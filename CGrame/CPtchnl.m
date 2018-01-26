@@ -275,11 +275,11 @@ classdef CPtchnl < handle
     %-------------------------------------------
     function s =valeurDePoint(obj,texte,can,ess)
       try
-        foo1 =texte
+        foo1 =texte;
         % On demande la valeur en temps
-        m =obj.valeurDeTemps(texte,can,ess)
+        m =obj.valeurDeTemps(texte,can,ess);
         % On retourne le résultat en nb d'échantillon
-        s =obj.temps2Echantillon(m,can,ess)
+        s =obj.temps2Echantillon(m,can,ess);
       catch e;
         try
           % pour matlab
@@ -310,18 +310,7 @@ classdef CPtchnl < handle
         % On retourne le résultat en secondes
         s =obj.tretted3(texte,can,ess);
       catch e;
-        try
-          % pour matlab
-          lesMots =sprintf('Erreur dans la fonction: %s\n%s (Canal: %d)|(Essai: %d)', ...
-                          e.identifier, e.message, can, ess);
-        catch moo;
-          % pour Octave
-          disp(sss.message)
-          for U=1:length(sss.stack)
-            disp(sss.stack(U))
-          end
-        end
-        s =[];
+        rethrow(e);
       end
     end
 
@@ -339,8 +328,15 @@ classdef CPtchnl < handle
       rate =hdchnl.rate(can,ess);
       v =round((tiempo-fcut)*rate);
       if v < 0
-        me =MException('COMMUNS:CPtchnl:temps2Echantillon', 'Échantillon inférieure à Zéro, attention au frontcut');
-        throw(me);
+        try
+          % pour matlab
+          me =MException('COMMUNS:CPtchnl:temps2Echantillon', 'Échantillon inférieure à Zéro, attention au frontcut');
+          throw(me);
+        catch moo;
+          % pour Octave
+          me =Oct_MException('COMMUNS:CPtchnl:temps2Echantillon', 'Échantillon inférieure à Zéro, attention au frontcut');
+          rethrow(me);
+        end
       elseif v == 0
         v =1;
       end
@@ -380,8 +376,9 @@ classdef CPtchnl < handle
             me =Oct_MException('COMMUNS:CPtchnl:tretted3', ['L''expression: "' TT '" n''est pas valide']);
             rethrow(me);
           end
-        else
-          u =java.lang.StringBuffer;
+        end
+%        else
+          u ='';  %java.lang.StringBuffer;
           leTop =length(TT);
           i =1;
           while (i <= leTop)
@@ -411,27 +408,27 @@ classdef CPtchnl < handle
                   rethrow(me);
                 end
               end
-              u.append(num2str(v, 28));
+              u =[u num2str(v)];   %  u.append(num2str(v, 28));
             else
-              u.append(TT(i));
+              u =[u TT(i)];   % u.append(TT(i));
             end
             i =i+1;
           end
-        end
-        tt =str2num(u.toString());
+%        end
+        tt =str2num(u);   % str2num(u.toString());
         if isempty(tt)
           try
             me =MException('COMMUNS:CPtchnl:tretted3', ...
                           ['L''expression: %s n''est pas valide'], TT);
             throw(me);
           catch moo;
-            me =MException('COMMUNS:CPtchnl:tretted3', ...
+            me =Oct_MException('COMMUNS:CPtchnl:tretted3', ...
                           ['L''expression: "' TT '" n''est pas valide']);
             rethrow(me);
           end
         end
       catch ss;
-        % rien à faire
+        rethrow(ss);
       end
     end
 
