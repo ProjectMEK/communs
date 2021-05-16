@@ -14,13 +14,14 @@
 %   pt = Onmark(obj,canal,essai,pt,temps)
 %   lp = Onmarktyp(obj,canal,essai,point,temps,type)
 %        OnTrie(obj,canal,essai)
+%        trierPoints(obj,canal,essai,Pti,Ptf,MODE)
 %        PointBidon(obj, ess, canal, pt)
 %    s = valeurDePoint(obj,texte,can,ess)
 %    s = ValeurDeTemps(obj, texte, can, ess)
 %   ss = verifPt3(obj, v, can, ess)
 %
 % METHODS STATIC
-% [v, u] = retretted3(Texto, u)
+% [v, u] = onTretteP(Texto, u)
 %
 % On pourrait faire une fonction DUPLIC: un canal vers plusieurs ou
 %    N canal vers N canal... ptchnl.duplic(Vcan,Ncan) ...
@@ -104,7 +105,7 @@ classdef CPtchnl < handle
     %--------------------------------------------
     function pt =Onmark(obj,canal,essai,pt,temps)
       hdchnl =obj.Ofich.Hdchnl;
-      if pt
+      if pt > 0
         % on écrit sur le point "pt"
         if hdchnl.npoints(canal,essai) == 0
           % ce canal/essai n'a pas encore de point marqué
@@ -133,23 +134,46 @@ classdef CPtchnl < handle
       end
     end
 
-    %----------------------------------------
+    %------------------------------------------
+    % Triage de tous les points du canal/essai.
     % Dans la fonction d'importation de point
     % Il est demandé si on veut trier.
     %
-    % Faudrait vérifier le tri sur le type??
-    %-------------------------------
-    function OnTrie(obj,canal,essai)
+    % MODE --> 'ascend' ou 'descend'
+    %------------------------------------------
+    function OnTrie(obj,canal,essai,MODE)
       hdchnl =obj.Ofich.Hdchnl;
       N =hdchnl.npoints(canal,essai);
       if N > 1
-        V =obj.Dato(1:N, hdchnl.point(canal,essai),1);
-        [a, b] =sort(V);
-        obj.Dato(1:N, hdchnl.point(canal,essai),1) =V(b);
+        V =obj.Dato(1:N, hdchnl.point(canal,essai),:);
+        [a, b] =sort(V(:,1,1),MODE);
+        obj.Dato(1:N, hdchnl.point(canal,essai),1) =a;
+        obj.Dato(1:N, hdchnl.point(canal,essai),2) =V(b,1,2);
       end
     end
 
-    %-----------------------------------
+    %-------------------------------------------------
+    % Triage des points [Pti à Ptf] du canal/essai.
+    %
+    % MODE --> 'ascend' ou 'descend'
+    %-------------------------------------------------
+    function trierPoints(obj,canal,essai,Pti,Ptf,MODE)
+      hdchnl =obj.Ofich.Hdchnl;
+      N =hdchnl.npoints(canal,essai);
+      if Pti > Ptf
+        foo =Pti;
+        Pti =Ptf;
+        Ptf =foo;
+      end
+      if N > 1 & Pti > 0 & Ptf-Pti > 0 & Ptf <= N
+        V =obj.Dato(Pti:Ptf, hdchnl.point(canal,essai),:);
+        [a, b] =sort(V(:,1,1),MODE);
+        obj.Dato(Pti:Ptf, hdchnl.point(canal,essai),1) =a;
+        obj.Dato(Pti:Ptf, hdchnl.point(canal,essai),2) =V(b,1,2);
+      end
+    end
+
+    %-----------------------------------------------------------
     % INSÉRER un point à l'endroit point
     %
     % On décalera les points en fonction du rang demandé.
@@ -164,7 +188,7 @@ classdef CPtchnl < handle
     %   point -->  numéro du point à insérer
     %   temps -->  temps en échantillon à marquer
     %   type  -->  numéro du type de point (range possible -1:3)
-    %-----------------------------------------------------
+    %-----------------------------------------------------------
     function inserepoint(obj,canal,essai,point,temps,type)
       hdchnl =obj.Ofich.Hdchnl;
       dernier =hdchnl.npoints(canal,essai);
@@ -247,18 +271,28 @@ classdef CPtchnl < handle
     % texte peut être: [pi pf p1 p2... "3.65"]
     %
     % évolution nov-2012
-    % On peut maintenant donné comme valeur de point: P1+(Pf-Pi)/10
+    % On peut maintenant donner comme valeur de point: P1+(Pf-Pi)/10
     %-------------------------------------------
     function s =valeurDePoint(obj,texte,can,ess)
       try
+        foo1 =texte;
         % On demande la valeur en temps
         m =obj.valeurDeTemps(texte,can,ess);
         % On retourne le résultat en nb d'échantillon
         s =obj.temps2Echantillon(m,can,ess);
-      catch e
-        lesMots =sprintf('Erreur dans la fonction: %s\n%s (Canal: %d)|(Essai: %d)', ...
-                          e.identifier, e.message, can, ess);
-        disp(lesMots);
+      catch e;
+        try
+          % pour matlab
+          lesMots =sprintf('Erreur dans la fonction: %s\n%s (Canal: %d)|(Essai: %d)', ...
+                            e.identifier, e.message, can, ess);
+          disp(lesMots);
+        catch moo;
+          % pour Octave
+          disp(e.message)
+          for U=1:length(e.stack)
+            disp(e.stack(U))
+          end
+        end
         s =[];
       end
     end
@@ -275,11 +309,8 @@ classdef CPtchnl < handle
       try
         % On retourne le résultat en secondes
         s =obj.tretted3(texte,can,ess);
-      catch e
-        lesMots =sprintf('Erreur dans la fonction: %s\n%s (Canal: %d)|(Essai: %d)', ...
-                          e.identifier, e.message, can, ess);
-        disp(lesMots);
-        s =[];
+      catch e;
+        rethrow(e);
       end
     end
 
@@ -297,8 +328,15 @@ classdef CPtchnl < handle
       rate =hdchnl.rate(can,ess);
       v =round((tiempo-fcut)*rate);
       if v < 0
-        me =MException('COMMUNS:CPtchnl:temps2Echantillon', 'Échantillon inférieure à Zéro, attention au frontcut');
-        throw(me);
+        try
+          % pour matlab
+          me =MException('COMMUNS:CPtchnl:temps2Echantillon', 'Échantillon inférieure à Zéro, attention au frontcut');
+          throw(me);
+        catch moo;
+          % pour Octave
+          me =Oct_MException('COMMUNS:CPtchnl:temps2Echantillon', 'Échantillon inférieure à Zéro, attention au frontcut');
+          rethrow(me);
+        end
       elseif v == 0
         v =1;
       end
@@ -317,47 +355,80 @@ classdef CPtchnl < handle
     %
     %--------------------------------------
     function tt =tretted3(tO, TT, can, ess)
-      if ~isSyntaxBorneValid(TT)
-        me =MException('COMMUNS:CPtchnl:tretted3', 'Syntaxe (%s) non valide', TT);
-        throw(me);
-      end
-      % ON ENLÈVE LES BLANK
-      pat ='\s+';
-      TT =regexprep(TT, pat, '');
-      if isempty(regexpi(TT, 'p')) && isempty(str2num(TT))  % pas de "p" mais d'autres caractères
-        me =MException('COMMUNS:CPtchnl:tretted3', ['L''expression: %s n''est pas valide'], TT);
-        throw(me);
-      else
-        u =java.lang.StringBuffer;
-        leTop =length(TT);
-        i =1;
-        while (i <= leTop)
-          if strncmpi(TT(i), 'p', 1)       % on a un "point"
-            [val, i] =tO.retretted3(TT, i);
-            i =i-1;
-            if isempty(val)
-              me =MException('COMMUNS:CPtchnl:tretted3', ...
-                            ['L''expression: %s n''est pas valide'], TT);
-              throw(me);
-            end
-            v =tO.verifPt3(val, can, ess);
-            if isempty(v)
-              me =MException('COMMUNS:CPtchnl:tretted3', ...
-                            ['L''expression: %s n''est pas valide'], TT);
-              throw(me);
-            end
-            u.append(num2str(v, 28));
-          else
-            u.append(TT(i));
+      try
+        if ~isSyntaxBorneValid(TT)
+          try
+            me =MException('COMMUNS:CPtchnl:tretted3', 'Syntaxe (%s) non valide', TT);
+            throw(me);
+          catch moo;
+            me =Oct_MException('COMMUNS:CPtchnl:tretted3', ['Syntaxe "' TT '" non valide']);
+            rethrow(me);
           end
-          i =i+1;
         end
-      end
-      tt =str2num(u.toString());
-      if isempty(tt)
-        me =MException('COMMUNS:CPtchnl:tretted3', ...
-                      ['L''expression: %s n''est pas valide'], TT);
-        throw(me);
+        % ON ENLÈVE LES BLANK
+        pat ='\s+';
+        TT =regexprep(TT, pat, '');
+        if isempty(regexpi(TT, 'p')) && isempty(str2num(TT))  % pas de "p" mais d'autres caractères
+          try
+            me =MException('COMMUNS:CPtchnl:tretted3', ['L''expression: %s n''est pas valide'], TT);
+            throw(me);
+          catch moo;
+            me =Oct_MException('COMMUNS:CPtchnl:tretted3', ['L''expression: "' TT '" n''est pas valide']);
+            rethrow(me);
+          end
+        end
+%        else
+          u ='';  %java.lang.StringBuffer;
+          leTop =length(TT);
+          i =1;
+          while (i <= leTop)
+            if strncmpi(TT(i), 'p', 1)       % on a un "point"
+              [val, i] =tO.onTretteP(TT, i);
+              i =i-1;
+              if isempty(val)
+                try
+                  me =MException('COMMUNS:CPtchnl:tretted3', ...
+                                ['L''expression: %s n''est pas valide'], TT);
+                  throw(me);
+                catch moo
+                  me =Oct_MException('COMMUNS:CPtchnl:tretted3', ...
+                                ['L''expression: "' TT '" n''est pas valide']);
+                  rethrow(me);
+                end
+              end
+              v =tO.verifPt3(val, can, ess);
+              if isempty(v)
+                try
+                  me =MException('COMMUNS:CPtchnl:tretted3', ...
+                                ['L''expression: %s n''est pas valide'], TT);
+                  throw(me);
+                catch moo;
+                  me =Oct_MException('COMMUNS:CPtchnl:tretted3', ...
+                                ['L''expression: "' TT '" n''est pas valide']);
+                  rethrow(me);
+                end
+              end
+              u =[u num2str(v)];   %  u.append(num2str(v, 28));
+            else
+              u =[u TT(i)];   % u.append(TT(i));
+            end
+            i =i+1;
+          end
+%        end
+        tt =str2num(u);   % str2num(u.toString());
+        if isempty(tt)
+          try
+            me =MException('COMMUNS:CPtchnl:tretted3', ...
+                          ['L''expression: %s n''est pas valide'], TT);
+            throw(me);
+          catch moo;
+            me =Oct_MException('COMMUNS:CPtchnl:tretted3', ...
+                          ['L''expression: "' TT '" n''est pas valide']);
+            rethrow(me);
+          end
+        end
+      catch ss;
+        rethrow(ss);
       end
     end
 
@@ -398,7 +469,7 @@ classdef CPtchnl < handle
     % L'indicateur "u" pointe sur un caractère "p"
     % en arrivant dans cette fonction
     %-------
-    function [v, u] =retretted3(Texto, u)
+    function [v, u] =onTretteP(Texto, u)
       u =u+1;
       v ='';
       if u > length(Texto)     % le "p" était le dernier char
@@ -418,5 +489,6 @@ classdef CPtchnl < handle
         end
       end
     end
+
   end  %methods (Static)
 end  %classdef

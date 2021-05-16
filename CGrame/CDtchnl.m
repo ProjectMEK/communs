@@ -53,25 +53,25 @@ classdef CDtchnl < handle
       obj.MaZnom();
     end
 
-    %----------------------
+    %------------------------
     % mise à zéro des datas
-    %--------------------
+    %------------------------
     function MaZdato(obj)
       obj.Dato =struct();
     end
 
-    %----------------------------
+    %------------------------------
     % mise à zéro du nom du champ
-    %-------------------
+    %------------------------------
     function MaZnom(obj)
       obj.Nom ='';
     end
 
-    %-----------------------------------
+    %-------------------------------------------
     % Si on change de canal de référence
     % en conservant le même objet CDtchnl
     % on a besoin de renommer le champ des datas
-    %-------------------------
+    %-------------------------------------------
     function rename(tO, lenom)
       %-------------------------
       % si obj.Nom  est vide = 0
@@ -83,11 +83,11 @@ classdef CDtchnl < handle
       if test < 2
       	tO.Dato.(lenom) =[];
       	tO.Nom =lenom;
-      elseif length(fields(tO.Dato)) > 1
+      elseif length(fieldnames(tO.Dato)) > 1
       	disp('Erreur dans la fonction rename de l''objet CDtchnl');
       else
       	tO.Nom =lenom;
-      	vieux =fields(tO.Dato);
+      	vieux =fieldnames(tO.Dato);
       	a.(lenom) =tO.Dato.(vieux{1});
       	tO.Dato =a;
       end

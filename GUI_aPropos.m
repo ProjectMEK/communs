@@ -1,10 +1,12 @@
 %
 % Affichage de la fenêtre "À propos"
 % 
-% en entrée on veut:
-%   -  une cellule avec les phrases à afficher.
-%   -  le nombre d'interligne à passer pour l'affichage.
-%   -  la FontSize ( si zéro --> valeur par défaut )
+% en entrée on veut une cellule "triple" avec:
+% foo = {les phrases à afficher, ...
+%        le nombre d'interligne à passer pour l'affichage, ...
+%        la FontSize (si zéro --> valeur par défaut)}
+% puis la couleur pour le background
+% colore = [R G B] ou 0 pour la couleur par défaut
 %
 % 26 février 2015, MEK
 %
@@ -17,7 +19,7 @@ function GUI_aPropos(foo, colore)
   end 
   fenx =250;
   feny =(length(foo)+4)*epay+(N+3)*interlig;
-  if ~colore
+  if ~exist('colore','var') | ~colore
     colore =[0 0.8 0.8];
   end
   % on va centrer ce nouveau GUI horizontalement et verticalement
@@ -25,6 +27,8 @@ function GUI_aPropos(foo, colore)
   lapos =positionfen('C','C',fenx,feny);
   bordx =floor(0.1*fenx);
   largtext =floor(0.8*fenx);
+  % fontsize = 9...
+  FS9=9; FS7=7;
   %___________________________________________________________________
   % boîte standard, on peut y passer: (position) ou (position,couleur)
   %-------------------------
@@ -37,7 +41,7 @@ function GUI_aPropos(foo, colore)
     posy =posy-hauteur-(interlig*foo{U}{2});
     if foo{U}{3}
       uicontrol('Parent',labox,'style','text','position',[posx posy largeur hauteur],...
-                'FontSize',foo{U}{3}, 'string',foo{U}{1});
+                'fontsize',foo{U}{3}, 'string',foo{U}{1});
     else
       uicontrol('Parent',labox,'style','text','position',[posx posy largeur hauteur],...
                 'string',foo{U}{1});
@@ -45,13 +49,13 @@ function GUI_aPropos(foo, colore)
   end
   posy =posy-hauteur-2*interlig;
   uicontrol('Parent',labox,'style','text','position',[posx posy largeur hauteur],...
-            'FontSize',9,'string','Programmeur/Analyste:');
+            'fontsize',FS9,'string','Programmeur/Analyste:');
   posy =posy-hauteur;
   uicontrol('Parent',labox,'style','text','position',[posx posy largeur hauteur],...
-            'FontSize',9,'string','M.E.Kaszap');
+            'fontsize',FS9,'string','M.E.Kaszap');
   posy =posy-hauteur;
   uicontrol('Parent',labox,'style','text','position',[posx posy largeur hauteur],...
-            'FontSize',7,'string','courriel: grame@kin.ulaval.ca ');
+            'fontsize',FS7,'string','courriel: grame@kin.ulaval.ca ');
 end
 
 %

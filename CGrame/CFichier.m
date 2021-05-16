@@ -2,7 +2,7 @@
 % Classe CFichier
 %
 % Classe de Base pour la gestion des fichiers au format d'Analyse,
-% indÃ©pendante des applications. Elle sera hÃ©ritÃ©e par d'autres classes 
+% indépendante des applications. Elle sera héritée par d'autres classes 
 % du genre CFichierAnalyse.
 %
 % MEK - mai 2009
@@ -26,13 +26,22 @@ classdef CFichier < handle
 
   methods
 
-    % CONSTRUCTOR
-    function thisObj =CFichier(letype)
-      thisObj.Info =CFinfo();
-      thisObj.Hdchnl =CHdchnl();
-      thisObj.Ptchnl =CPtchnl(thisObj);
-      thisObj.Catego =CCatego();
-      thisObj.Catego.hF =thisObj;
+    %------------------------------------------------
+    % Anciennement la fonction CONSTRUCTOR "CFichier"
+    %------------------------------------------------
+    function initCFichier(thisObj)
+
+      try
+        thisObj.Info =CFinfo();
+        thisObj.Hdchnl =CHdchnl();
+        thisObj.Ptchnl =CPtchnl(thisObj);
+        thisObj.Catego =CCatego();
+        thisObj.Catego.hF =thisObj;
+      catch moo;
+        CQueEsEsteError.dispOct(moo);
+        rethrow(moo);
+      end
+
     end
 
     % DESTRUCTOR
@@ -46,14 +55,14 @@ classdef CFichier < handle
 
     %----------------------------------------
     % GETTER-SETTER
-    % pour la propriÃ©tÃ©: NouvelleVersion
+    % pour la propriété: NouvelleVersion
     %----------------------------------------
     function val = get.NouvelVersion(thisObj)
       val =thisObj.NouvelVersion;
     end
 
-    function thisObj = set.NouvelVersion(thisObj,value)
-      % rien Ã  faire, on ne touche pas Ã  cette propriÃ©tÃ©
+    function thisObj = set.NouvelVersion(thisObj, ~)
+      % rien à faire, on ne touche pas à cette propriété
     end
 
     %------------------------------------
@@ -62,7 +71,83 @@ classdef CFichier < handle
     % on peut vouloir les comparer
     %------------------------------
     function Cok =find(thisObj,OFi)
-      Cok =(thisObj == OFi);
+
+      try
+        % version Matlab
+        Cok =(thisObj == OFi);
+      catch moo;
+        % version Octave
+        Cok =false;
+
+        % il faut au moins que les 2 soient des objets de la même classe
+        if strcmp(class(thisObj), class(OFi))
+          % la stratégie est d'utiliser une propriété unique connue si elle
+          % est identique dans les deux cas, c'est forcément le même handle
+          Cok =strcmp(thisObj.Info.fitmp, OFi.Info.fitmp);
+        end
+
+      end
+
+    end
+
+    %-------------------------------
+    % On copie les canaux du fichier
+    % vers un fichier temporaire
+    %-------------------
+    function copycan(tO)
+      try
+        % on vérifie si une waitbar est active
+        hwb =findall(0, 'type','figure', 'name','WBarLecture');
+        TextLocal ='Création du fichier temporaire de travail';
+        delwb =false;
+        if isempty(hwb)
+          delwb =true;
+          hwb =waitbar(0.001, TextLocal);
+        else
+          waitbar(0.001, hwb, TextLocal);
+        end
+
+        % Fichier source, vrai fichier
+        Fsrc =fullfile(tO.Info.prenom, tO.Info.finame);
+        % Fichier destination, fichier temporaire de travail
+        Fdst =tO.Info.fitmp;
+
+        ncan =tO.Vg.nad;
+        hdchnl =tO.Hdchnl;
+        laver ='-V7';
+
+      	% nom de la variable du premier canal
+      	lenom =hdchnl.cindx{1};
+      	% on load le premier canal
+      	A =load(Fsrc, lenom);
+      	% on le sauve dans le fichier temporaire
+%      	save(Fdst, '-struct', 'A', laver);
+      	save(Fdst, '-struct', 'A');
+
+%**************************************************************************************
+% lemot =sprintf('CFichier.copycan --> rendu ici laver ou pas, voir avec Matlab...\n');
+% disp(lemot);
+
+
+        % puis on fait la même chose pour les autres canaux
+        for U =2:ncan
+        	waitbar(0.95*single(U)/single(ncan), hwb);
+        	A =[];
+        	lenom =hdchnl.cindx{U};
+        	A =load(Fsrc, lenom);
+        	save(Fdst, '-struct', 'A', '-append');
+        end
+
+        % Si on a créé un waitbar, on le delete
+        if delwb
+          delete(hwb);
+        end
+
+      catch moo;
+        CQueEsEsteError.dispOct(moo);
+        rethrow(moo);
+      end
+
     end
 
     %---------------------------------
@@ -76,59 +161,83 @@ classdef CFichier < handle
     end
 
     %-----------------------------------
-    % RÃ©cupÃ¨re 1 canal (tous les essais)
+    % Récupère 1 canal (tous les essais)
     % HDt --> handle sur un objet CDtchnl()
-    % can --> numÃ©ro du canal
+    % can --> numéro du canal
     %-----------------------------------
     function getcanal(thisObj, HDt, can)
       if nargin == 3
         HDt.Nom =thisObj.Hdchnl.cindx{can};
       end
-      if isempty(whos('-file', thisObj.Info.fitmp, HDt.Nom))
+      % if isempty(whos('-file', thisObj.Info.fitmp, HDt.Nom))
+      % 	a.(HDt.Nom) =[];
+      % 	HDt.Dato =a;
+      % else
+      %   HDt.Dato =load(thisObj.Info.fitmp, HDt.Nom);
+      % end
+      try
+        a =load(thisObj.Info.fitmp, HDt.Nom);
+        if isempty(a)
+          a.(HDt.Nom) =[];
+        end
+      catch ss;
       	a.(HDt.Nom) =[];
-      	HDt.Dato =a;
-      else
-        HDt.Dato =load(thisObj.Info.fitmp, HDt.Nom);
       end
+    	HDt.Dato =a;
     end
 
     %-------------------------------------
-    % RÃ©cupÃ¨re 1 canal pour les essais ess
+    % Récupère 1 canal pour les essais ess
     % HDt --> handle sur un objet CDtchnl()
-    % ess --> numÃ©ro des essais Ã  lire
-    % can --> numÃ©ro du canal
+    % ess --> numéro des essais à lire
+    % can --> numéro du canal
     %-----------------------------------------
     function getcaness(thisObj, HDt, ess, can)
+
       if nargin == 4
         HDt.Nom =thisObj.Hdchnl.cindx{can};
       end
-      if isempty(whos('-file', thisObj.Info.fitmp, HDt.Nom))
-      	a.(HDt.Nom) =[];
-      	HDt.Dato =a;
-      else
-        s =load(thisObj.Info.fitmp, HDt.Nom);
-        HDt.Dato.(HDt.Nom) =s.(HDt.Nom)(:,ess);
+      % if isempty(whos('-file', thisObj.Info.fitmp, HDt.Nom))
+      % 	a.(HDt.Nom) =[];
+      % 	HDt.Dato =a;
+      % else
+      %   s =load(thisObj.Info.fitmp, HDt.Nom);
+      %   HDt.Dato.(HDt.Nom) =s.(HDt.Nom)(:,ess);
+      % end
+      try
+        a =load(thisObj.Info.fitmp, HDt.Nom);
+        if isempty(a)
+          a.(HDt.Nom) =[];
+          HDt.Dato =a;
+        else
+          HDt.Dato.(HDt.Nom) =a.(HDt.Nom)(:,ess);
+        end
+      catch ss;
+        a.(HDt.Nom) =[];
+        HDt.Dato =a;
       end
+
     end
 
     %-----------------------------------------
     % sauvegarde le canal avec tous ses essais
     % HDt --> handle sur un objet CDtchnl()
-    % can --> numÃ©ro du canal
-    %-----------------------------------
+    % can --> numéro du canal
+    %-----------------------------------------
     function setcanal(thisObj, HDt, can)
       if nargin == 3
         thisObj.rename(HDt, can);
       end
       p =HDt.Dato;
-      save(thisObj.Info.fitmp, '-Struct', 'p', HDt.Nom, '-Append');
+      save(thisObj.Info.fitmp, '-struct', 'p', HDt.Nom, '-append');
     end
 
-    %----------------------------------------
+    %-----------------------------------------
     % sauvegarde le canal pour les essais ess
     % HDt --> handle sur un objet CDtchnl()
-    % ess --> numÃ©ro des essais Ã  lire
-    % can --> numÃ©ro du canal
+    % ess --> numéro des essais à lire
+    % can --> numéro du canal
+    %-----------------------------------------
     function setcaness(thisObj, HDt, ess, can)
       if nargin == 4
         thisObj.rename(HDt, can);
@@ -142,16 +251,30 @@ classdef CFichier < handle
   	  	a =size(HDt.Dato.(HDt.Nom), 1);
   	  	p.(HDt.Nom)(1:a,ess) =HDt.Dato.(HDt.Nom);
       end
-      save(thisObj.Info.fitmp, '-Struct', 'p', HDt.Nom,'-Append');
+      save(thisObj.Info.fitmp, '-struct', 'p', HDt.Nom,'-append');
     end
 
     %----------------------------
     % Delete les datas d'un canal
-    %   can --> numÃ©ro du canal
+    %   can --> numéro du canal
     %----------------------------
     function delcan(thisObj, can)
+      OA =CAnalyse.getInstance();
+      % affichage d'un waitbar ou récupération si un est existant
+      ww =false;
+      hw =findobj('type','figure','name',OA.wbnom);
+      if isempty(hw)
+        hw =waitbar(0.01, 'Suppression des datas en cours...','name',OA.wbnom);
+        ww =true;
+      end
+      % paramètres pour le waitbar
+      NC =length(can);
+      step =1/NC;
+      tot =step/2;
       HDt =CDtchnl();
-      for U =1:length(can)
+      for U =1:NC
+        waitbar(tot,hw);
+        tot =tot+step;
         % lire le nom de la variable du canal
       	HDt.Nom =thisObj.Hdchnl.cindx{can(U)};
         % on vide les datas
@@ -160,24 +283,28 @@ classdef CFichier < handle
       	thisObj.setcanal(HDt);
       end
       delete(HDt);
+      if ww
+        % on delete le waitbar que nous avons créé
+        delete(hw);
+      end
     end
 
     %----------------------
     % delete les essais ess
-    %  ess --> numÃ©ro des essais
+    %  ess --> numéro des essais
     %----------------------------
     function deless(thisObj, ess)
       HDt =CDtchnl();
       hwb =waitbar(0, 'canal: ');
       %________________________________________________________________________
-      % comme chaque canal est conservÃ© dans une variable sÃ©parÃ©ment,
+      % comme chaque canal est conservé dans une variable séparément,
       % il faudra faire le tour de tout les canaux pour effacer les essais ess
       %------------------------------------------------------------------------
       for U =1:thisObj.Vg.nad
       	waitbar(U/thisObj.Vg.nad, hwb, ['canal: ' num2str(U)]);
         % lecture du nom du canal
       	HDt.Nom =thisObj.Hdchnl.cindx{U};
-        % mise Ã  zÃ©ro des essais
+        % mise à zéro des essais
       	HDt.Dato.(HDt.Nom) =[];
         % sauvegarde du canal pour les essais ess
       	thisObj.setcaness(HDt, ess);
@@ -198,12 +325,12 @@ classdef CFichier < handle
         end
       end
       if isempty(thisObj.Vg.nomstim)
-        % On a pas de stimulu, on en crÃ© un bidon
+        % On a pas de stimulu, on en cré un bidon
         thisObj.Vg.nst =1;
         thisObj.Vg.nomstim ={'Bidon'};
         thisObj.Hdchnl.numstim =ones(1, thisObj.Vg.ess);
       else
-      	% on ajuste les paramÃ¨tres
+      	% on ajuste les paramètres
       	thisObj.Vg.nst =length(thisObj.Vg.nomstim);
       	test =zeros(1, thisObj.Vg.ess);
       	N =min(length(test), length(thisObj.Hdchnl.numstim));
@@ -245,7 +372,7 @@ classdef CFichier < handle
     end
 
     %-----------------------------------------------
-    % les essais non-assignÃ©s seront classÃ©s "bidon"
+    % les essais non-assignés seront classés "bidon"
     %---------------------------------
     function StimEssVideBidon(thisObj)
       vg =thisObj.Vg;
@@ -268,7 +395,7 @@ classdef CFichier < handle
     %-------------------------------------------
     % Renommer la variable qui contient le canal
     % HDt --> handle sur un objet CDtchnl()
-    % can --> numÃ©ro du canal
+    % can --> numéro du canal
     %---------------------------------
     function rename(thisObj, HDt, can)
       lenom =thisObj.Hdchnl.cindx{can};
@@ -277,7 +404,7 @@ classdef CFichier < handle
 
     %------------------------------
     % Retourne le size du canal can
-    % can --> numÃ©ro du canal
+    % can --> numéro du canal
     %--------------------------------
     function Dt =sizecan(thisObj,can)
       ss =whos('-file', thisObj.Info.fitmp, thisObj.Hdchnl.cindx{can});
@@ -287,9 +414,9 @@ classdef CFichier < handle
     %-------------------------------------
     % [Ok] = ASSEZPT(LesCan, NbPt, LesEss)
     %
-    % Cette fonction va vÃ©rifier si on a le bon nombre de point demandÃ©.
-    % En entrÃ©e: les canaux Ã  vÃ©rifier, le nombre de point nÃ©cessaire
-    %            (1 par dÃ©faut), les essais (1:vg.ess par dÃ©faut).
+    % Cette fonction va vérifier si on a le bon nombre de point demandé.
+    % En entrée: les canaux à vérifier, le nombre de point nécessaire
+    %            (1 par défaut), les essais (1:vg.ess par défaut).
     % En sortie: si il y a erreur, [1],  autrement [0]
     %-------------------------------------------
     function lasortie =assezpt(thisObj,varargin)
@@ -300,7 +427,7 @@ classdef CFichier < handle
       lasortie =false;
       % variable des infos sur les canaux/essais
       hdchnl =thisObj.Hdchnl;
-      % variable des infos des points marquÃ©s
+      % variable des infos des points marqués
       ptchnl =thisObj.Ptchnl;
       % variable des infos globales
       vg =thisObj.Vg;
@@ -314,9 +441,9 @@ classdef CFichier < handle
         lesess =varargin{3};
       end
       %**********************************************************
-      % L'affichage d'erreur se fait dans la fenÃªtre de commande.
-      % Comme on utilise des caractÃ¨res ASCII > 128, Ã§a demande
-      % une pirouette supplÃ©mentaire (retour au bon vieux "DOS" d'autrefois).
+      % L'affichage d'erreur se fait dans la fenêtre de commande.
+      % Comme on utilise des caractères ASCII > 128, ça demande
+      % une pirouette supplémentaire (retour au bon vieux "DOS" d'autrefois).
       %**********************************************************************
       sdl =[char(13) char(10)];
       ctok =1;
@@ -348,33 +475,37 @@ classdef CFichier < handle
     end
 
     %-------------------------------------------------
-    % ProcÃ¨de au marquage d'un point, voir "CPtchnl.m"
+    % Procède au marquage d'un point, voir "CPtchnl.m"
     %-------------------------------------------------------
     function marqettyp(thisObj,canal,essai,point,temps,type)
       thisObj.Ptchnl.marqettyp(canal,essai,point,temps,type);
     end
 
     %---------------------------------
-    % initialise Ptchnl et met Ã  jour:
-    %   -  la matrice des points marquÃ©s
+    % initialise Ptchnl et met à jour:
+    %   -  la matrice des points marqués
     %   -  thisObj.Hdchnl
     %--------------------------
     function initpoint(thisObj)
       % variable des infos sur les canaux/essais
       Hd =thisObj.Hdchnl;
-      % variable des infos des points marquÃ©s
+      % variable des infos des points marqués
       Pt =thisObj.Ptchnl;
-      % nombre maximum de point marquÃ© dans ce fichier
+      % nombre maximum de point marqué dans ce fichier
       tmp =max(Hd.npoints(:));
       if tmp > 0 && ~isempty(Pt.Dato)
-        % on a des points marquÃ©s
+        % on a des points marqués
         % quel canal/essai en a
         ptmp =find(Hd.npoints(:) > 0);
-        % on se fait un backup de la matrice des infos des points marquÃ©s
+        % on se fait un backup de la matrice des infos des points marqués
         Dato =Pt.Dato;
-        % mise Ã  zÃ©ro de la matrice des infos des points marquÃ©s
+        if size(Dato, 3) == 1
+          foo =size(Dato);
+          Dato(:,:,2) =zeros(foo);
+        end
+        % mise à zéro de la matrice des infos des points marqués
         Pt.Dato =zeros(tmp,length(ptmp),2);
-        % Il reste Ã  rebÃ¢tir la matrice des points marquÃ©s Ã  partir
+        % Il reste à rebâtir la matrice des points marqués à partir
         % des infos canal/essais (Hdchnl) et du backup (Dato)
         for U =1:length(ptmp)
           Pt.Dato(1:Hd.npoints(ptmp(U)),U,:) =Dato(1:Hd.npoints(ptmp(U)),Hd.point(ptmp(U)),1:2);
@@ -388,16 +519,16 @@ classdef CFichier < handle
     end
 
     %-----------------------------
-    % rebÃ¢ti la variable vg.lesess
-    % qui est uitlisÃ© pour afficher les essais avec
-    % un nom de catÃ©gorie ou de stimulus...
+    % rebâti la variable vg.lesess
+    % qui est uitlisé pour afficher les essais avec
+    % un nom de catégorie ou de stimulus...
     %-----------------------
     function lesess(thisObj)
-    % vg.defniv sert Ã  afficher les catÃ©gories du niveau dÃ©sirÃ© plutÃ´t que d'indiquer le stimulus.
+    % vg.defniv sert à afficher les catégories du niveau désiré plutôt que d'indiquer le stimulus.
       vg =thisObj.Vg;
       cc =thisObj.Catego.Dato;
       L =cell(1,vg.ess);
-      % On vÃ©rifie si on a des stimulus
+      % On vérifie si on a des stimulus
    	  tlet =0;
       for U =1:vg.niveau
         if strcmpi(strtrim(cc(1,U,1).nom),'stimulus')
@@ -406,7 +537,7 @@ classdef CFichier < handle
         end
       end
       if tlet
-        S =zeros(vg.ess, 1);     % Ici S contient la catÃ©gorie pour un essai donnÃ©
+        S =zeros(vg.ess, 1);     % Ici S contient la catégorie pour un essai donné
         for U =1:cc(1,tlet,1).ncat
           S(:) =cc(2, tlet, U).ess(:)*U+S;
         end
@@ -439,7 +570,7 @@ classdef CFichier < handle
             end
           end
         else
-          % Pas de niveaux, on vÃ©rifie si on a des stimulus (avec vg.nst)
+          % Pas de niveaux, on vérifie si on a des stimulus (avec vg.nst)
        	  if vg.nst & thisObj.Hdchnl.numstim(V) & thisObj.Hdchnl.numstim(V) <= vg.nst
         	lestim =[strtrim(vg.nomstim{thisObj.Hdchnl.numstim(V)}) ' -'];
           end
@@ -456,8 +587,8 @@ classdef CFichier < handle
     end
 
     %------------------------------
-    % RebÃ¢ti la variable vg.lescats
-    % pour l'affichage des noms de catÃ©gorie
+    % Rebâti la variable vg.lescats
+    % pour l'affichage des noms de catégorie
     %------------------------
     function lescats(thisObj)
       vg =thisObj.Vg;
@@ -471,10 +602,10 @@ classdef CFichier < handle
     end
 
     %---------------------------------------------------------------
-    % Suite au nouveau format de fichier Analyse, il Ã©tait important
-    % de faire attention de ne pas Ã©craser par dÃ©faut un fichier qui
-    % Ã©tait dans l'ancien format.
-    %    entrada  -->  nom du fichier Ã  vÃ©rifier
+    % Suite au nouveau format de fichier Analyse, il était important
+    % de faire attention de ne pas écraser par défaut un fichier qui
+    % était dans l'ancien format.
+    %    entrada  -->  nom du fichier à vérifier
     % Au Retour
     %    []       -->  mauvais format de fichier (pas un format Analyse)
     %    false    -->  ancien format d'Analyse
@@ -482,11 +613,11 @@ classdef CFichier < handle
     %-------------------------------------------
     function COk =SondeFichier(thisObj, entrada)
       COk =[];
-      % on vÃ©rifie si on a au moins une variable vg
+      % on vérifie si on a au moins une variable vg
       chk00 =whos('-file', entrada, 'vg');
-      % on vÃ©rifie si il y a une variable hdchnl
+      % on vérifie si il y a une variable hdchnl
       chk01 =whos('-file', entrada, 'hdchnl');
-      % on vÃ©rifie si il y a une variable dtchnl
+      % on vérifie si il y a une variable dtchnl
       chk02 =whos('-file', entrada, 'dtchnl');
       if isempty(chk00) | isempty(chk01)
         % il manque au moins une des variables de base dans les deux formats
@@ -512,10 +643,10 @@ classdef CFichier < handle
     end
 
     %----------------------------------------------------
-    % Lorsque l'on a un fichier Ã  l'ancien format on doit
+    % Lorsque l'on a un fichier à l'ancien format on doit
     % le transformer dans la nouvelle version pour pouvoir
     % l'utiliser.
-    %   fI  -->  nom du fichier d'entrÃ©e
+    %   fI  -->  nom du fichier d'entrée
     %   fO  -->  nom du fichier de sortie
     %   hwb -->  handle d'un waitbar
     %---------------------------------------------
@@ -524,33 +655,48 @@ classdef CFichier < handle
     end
 
     %----------------------------------------------------------
-    % Fonction pour passer de l'ancienne version Ã  la nouvelle.
+    % Fonction pour passer de l'ancienne version à la nouvelle.
     %   entrada   -->  est le nom du fichier
     %   hwb       -->  est un handle sur le waitbar actif
-    %   hF        -->  est un handle sur une fonction, utilisÃ© dans analyse
+    %   batch     -->  true si on est en mode batch
     %-----------------------------------------------------
-    function salida =correction(thisObj, entrada, hwb, hF)
-      palabras ={'**************************************';...
-                 '*  Votre fichier Analyse doit Ãªtre   *';...
-                 '*  converti. Vous DEVRIEZ Donner un  *';...
-                 '*  nouveau nom afin de conserver     *';...
-                 '*  intacte l''ancien fichier.         *';...
-                 '*                                    *';...
-                 '**************************************'};
+    function salida =correction(thisObj, entrada, hwb, batch)
+      OA =CAnalyse.getInstance();
+      if OA.OPG.matlab
+        palabras ={'**************************************';...
+                   '*  Votre fichier Analyse doit être   *';...
+                   '*  converti. Vous DEVRIEZ Donner un  *';...
+                   '*  nouveau nom afin de conserver     *';...
+                   '*  intacte l''ancien fichier.        *';...
+                   '*                                    *';...
+                   '**************************************'};
+      else
+        palabras ={'**************************************';...
+                   '*  Votre fichier Analyse doit etre   *';...
+                   '*  converti. Vous DEVRIEZ Donner un  *';...
+                   '*  nouveau nom afin de conserver     *';...
+                   '*  intacte l''ancien fichier.        *';...
+                   '*                                    *';...
+                   '**************************************'};
+      end
       lafig =gcf;
-      etalors =CValet.fen3bton('Conseil avant conversion',palabras,'Renommer','Ã‰craser',lafig);
+      if batch
+      	etalors =false;
+      else
+        etalors =CValet.fen3bton('Conseil avant conversion',palabras,'Renommer','Écraser',lafig);
+      end
       if isempty(etalors)       % on quitte
       	salida =[];
         return;
       elseif etalors            % on renomme
         [fnom,pnom] =uiputfile('*.mat','','nouveau.mat');
-        if ((length(fnom) == 1) & (fnom == 0)) | (~isempty(hF) & hF(fullfile(pnom,fnom)))
+        if ((length(fnom) == 1) & (fnom == 0)) | OA.isfichopen(fullfile(pnom,fnom))
           salida =[];
           return;
         end
         salida =fullfile(pnom,fnom);
         guardar =0;
-      else                      % on Ã©crase
+      else                      % on écrase
         agarder =[tempname() '.mat'];
         movefile(entrada,agarder);
         salida =entrada;
