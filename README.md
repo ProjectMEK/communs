@@ -6,7 +6,6 @@ Au fil du temps, est apparu les mêmes besoins d'une application à l'autre. L'e
 À noter: les noms fichiers qui commencent par
 
     "C"           définissent des "Classes".
-
     "I" ou "GUI"  définissent des interfaces graphiques.
     
 la variable "tO" vient de: "this Object". On la trouve dans tous les fichiers définissant une classe.
